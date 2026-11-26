@@ -1,13 +1,13 @@
 {
   "name": "@funpay-plus/web",
   "private": true,
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/request-id.test.cjs"
+    "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.1.0",

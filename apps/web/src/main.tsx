@@ -1,3 +1,4 @@
+import { createLiveRefresh, matchesLiveQuery } from "./live-updates";
 import { LottieMark } from "./lottie-mark";
 import { useAppearance, AppearanceMotion } from "./appearance";
 import { lazy, Suspense, StrictMode, useEffect, useState } from "react";
@@ -448,16 +449,24 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
     let socket: WebSocket | null = null;
     let timer: ReturnType<typeof setTimeout>;
     let disposed = false;
+    const refresh = createLiveRefresh((events) => {
+      void queryClient.invalidateQueries(
+        { predicate: (query) => matchesLiveQuery(query.queryKey, events) },
+        { cancelRefetch: false },
+      );
+    });
     // Tauri uses a one-time socket ticket because WebSocket browsers cannot set Authorization.
     async function connect() {
       try {
         const ticket = await request<{ ticket: string }>("/ws-ticket", "POST");
+        if (disposed) return;
         const base = API || window.location.origin;
         socket = new WebSocket(
           `${base.replace(/^http/, "ws")}/api/ws?ticket=${ticket.ticket}`,
         );
         socket.onopen = () => setConnected(true);
         socket.onmessage = (event) => {
+          if (disposed) return;
           const data = JSON.parse(String(event.data)) as {
             channel: string;
             data: {
@@ -468,44 +477,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
             };
           };
           if (data.channel === "ping") return;
-          const paths: Record<string, string[]> = {
-            accounts: ["/accounts", "/dashboard", "/health"],
-            chats: ["/chats", "/messages", "/dashboard"],
-            orders: [
-              "/orders",
-              "/dashboard",
-              "/plugins/integrated/",
-              "/plugins/fulfillment",
-              "/loyalty",
-            ],
-            lots: ["/lots", "/auto-dump/", "/dashboard"],
-            tickets: [
-              "/tickets",
-              "/plugins/integrated/support-tickets",
-              "/logs",
-            ],
-            logs: ["/logs", "/activities", "/health"],
-            loyalty: ["/loyalty", "/dashboard"],
-          };
-          void queryClient.invalidateQueries({
-            predicate: (query) => {
-              const path = query.queryKey[1];
-              if (query.queryKey[0] === "plugin-logs")
-                return (
-                  data.channel === "logs" &&
-                  (!data.data.source_plugin ||
-                    data.data.source_plugin === query.queryKey[1])
-                );
-              if (query.queryKey[0] === "messages")
-                return data.channel === "chats";
-              return (
-                typeof path === "string" &&
-                (paths[data.channel] || []).some((prefix) =>
-                  path.startsWith(prefix),
-                )
-              );
-            },
-          });
+          refresh.push(data);
           if (data.data.level === "error") eventBus.emit("ERROR", data.data);
           else if (data.data.event === "ORDER_PAID")
             eventBus.emit("ORDER_PAID", data.data);
@@ -515,6 +487,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
             eventBus.emit("SYSTEM_LOG", data.data);
         };
         socket.onclose = () => {
+          if (disposed) return;
           setConnected(false);
           if (!disposed)
             timer = setTimeout(() => {
@@ -531,6 +504,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
     void connect();
     return () => {
       disposed = true;
+      refresh.dispose();
       clearTimeout(timer);
       socket?.close();
     };
@@ -669,7 +643,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="version">
             <span>FUNPAY PLUS</span>
-            <span>v0.1.5</span>
+            <span>v0.1.6</span>
           </div>
         </div>
       </aside>
@@ -714,29 +688,6 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
                 <strong>{currentAccount.username}</strong>
               </div>
             )}
-            <button
-              className={`bot-switch ${currentAccount?.is_active ? "active" : ""}`}
-              type="button"
-              role="switch"
-              aria-label="Работа бота"
-              aria-checked={Boolean(currentAccount?.is_active)}
-              title={
-                currentAccount
-                  ? `Бот: ${currentAccount.username}`
-                  : "Подключите аккаунт"
-              }
-              disabled={!currentAccount || action.isPending}
-              onClick={() =>
-                currentAccount &&
-                action.mutate({
-                  path: `/accounts/${currentAccount.id}`,
-                  method: "PATCH",
-                  body: { is_active: !currentAccount.is_active },
-                })
-              }
-            >
-              <span />
-            </button>
             <button className="command-button" onClick={() => setPalette(true)}>
               <Search size={14} />
               <span>Быстрый переход</span>

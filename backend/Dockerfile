@@ -14,4 +14,4 @@ COPY --chown=pulse:pulse . .
 RUN mkdir -p /app/storage && chown pulse:pulse /app/storage
 USER pulse
 EXPOSE 8765
-CMD ["sh", "-c", "alembic upgrade head && exec gunicorn app.main:app --bind 0.0.0.0:8765 --workers 1 --worker-class uvicorn.workers.UvicornWorker --timeout 90 --access-logfile /dev/null"]
+CMD ["sh", "-c", "alembic upgrade head && exec gunicorn app.main:app --bind 0.0.0.0:8765 --workers 1 --worker-class uvicorn.workers.UvicornWorker --timeout 90 --graceful-timeout 110 --access-logfile /dev/null"]

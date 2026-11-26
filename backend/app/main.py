@@ -184,7 +184,7 @@ async def lifespan(_app: FastAPI):
             await engine.dispose()
 
 
-app = FastAPI(title="FunPay Plus", version="0.1.5", lifespan=lifespan)
+app = FastAPI(title="FunPay Plus", version="0.1.6", lifespan=lifespan)
 app.middleware("http")(plugin_activity)
 app.add_middleware(
     CORSMiddleware,
