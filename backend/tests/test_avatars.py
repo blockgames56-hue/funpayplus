@@ -226,3 +226,25 @@ class AvatarRecoveryTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(chat.interlocutor_avatar, "https://sfunpay.com/s/avatar/buyer.jpg")
             self.assertEqual(chat.unread_count, 1)
             self.assertEqual(await db.scalar(select(func.count()).select_from(ChatMessage)), 1)
+
+    async def test_disabled_account_does_not_make_remote_avatar_requests(self):
+        async with self.session() as db:
+            (await db.get(Account, 1)).is_active = False
+            await db.commit()
+        self.assertIsNone(await self.service.ensure_avatar("account", 1))
+        self.assertIsNone(await self.service.ensure_avatar("chat", 1))
+        self.service.client.assert_not_awaited()
+
+    async def test_parallel_missing_avatar_requests_share_negative_result(self):
+        import asyncio
+
+        self.client.get_user_avatar.return_value = None
+        result = await asyncio.gather(*(self.service.ensure_avatar("account", 1) for _ in range(6)))
+        self.assertEqual(result, [None] * 6)
+        self.client.get_user_avatar.assert_awaited_once()
+
+    async def test_temporary_avatar_failure_uses_placeholder_and_backoff(self):
+        self.client.get_user_avatar.side_effect = services.FunPayError("temporary remote failure")
+        self.assertIsNone(await self.service.ensure_avatar("account", 1))
+        self.assertIsNone(await self.service.ensure_avatar("account", 1))
+        self.client.get_user_avatar.assert_awaited_once()

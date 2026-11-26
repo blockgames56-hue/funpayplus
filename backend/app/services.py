@@ -231,12 +231,18 @@ class AccountService:
                 return None
             account_id = row.id if kind == "account" else row.account_id
             current = normalize_avatar_url(getattr(row, field))
+            owner = row if kind == "account" else await db.get(Account, account_id)
+            if not owner or not owner.is_active:
+                return current
         if current and not force:
             return current
         key = (kind, ident)
         if not force and self.avatar_missing_until.get(key, utcnow()) > utcnow():
             return None
         async with self.avatar_locks.setdefault(account_id, asyncio.Lock()):
+            # Other components may have resolved the same absent photo while we waited.
+            if self.avatar_missing_until.get(key, utcnow()) > utcnow():
+                return None
             async with Session() as db:
                 row = await db.get(model, ident)
                 if not row:
@@ -244,28 +250,35 @@ class AccountService:
                 current = normalize_avatar_url(getattr(row, field))
                 if current and not force:
                     return current
-                user_id = row.funpay_id if kind == "account" else row.interlocutor_id
-            client = await self.client(account_id)
-            if kind == "chat":
-                if (
-                    utcnow()
-                    - self.avatar_contacts_at.get(account_id, utcnow() - timedelta(minutes=5))
-                ).total_seconds() >= 60:
-                    await self.sync_chats(account_id)
-                    self.avatar_contacts_at[account_id] = utcnow()
-                async with Session() as db:
-                    row = await db.get(Chat, ident)
-                    if not row:
-                        return None
-                    current = normalize_avatar_url(row.interlocutor_avatar)
-                    user_id = row.interlocutor_id
-                if current:
+                owner = row if kind == "account" else await db.get(Account, account_id)
+                if not owner or not owner.is_active:
                     return current
-            url = (
-                await client.get_user_avatar(user_id or client.user_id)
-                if kind == "account" or user_id
-                else None
-            )
+                user_id = row.funpay_id if kind == "account" else row.interlocutor_id
+            try:
+                client = await self.client(account_id)
+                if kind == "chat":
+                    if (
+                        utcnow()
+                        - self.avatar_contacts_at.get(account_id, utcnow() - timedelta(minutes=5))
+                    ).total_seconds() >= 60:
+                        await self.sync_chats(account_id)
+                        self.avatar_contacts_at[account_id] = utcnow()
+                    async with Session() as db:
+                        row = await db.get(Chat, ident)
+                        if not row:
+                            return None
+                        current = normalize_avatar_url(row.interlocutor_avatar)
+                        user_id = row.interlocutor_id
+                    if current:
+                        return current
+                url = (
+                    await client.get_user_avatar(user_id or client.user_id)
+                    if kind == "account" or user_id
+                    else None
+                )
+            except FunPayError:
+                self.avatar_missing_until[key] = utcnow() + timedelta(seconds=30)
+                return None
             url = normalize_avatar_url(url)
             async with Session() as db:
                 row = await db.get(model, ident)

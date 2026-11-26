@@ -1,4 +1,4 @@
-import { createLiveRefresh, matchesLiveQuery } from "./live-updates";
+import { createLiveRefresh, matchesLiveQuery, parseLiveEvent } from "./live-updates";
 import { LottieMark } from "./lottie-mark";
 import { useAppearance, AppearanceMotion } from "./appearance";
 import { lazy, Suspense, StrictMode, useEffect, useState } from "react";
@@ -467,16 +467,8 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
         socket.onopen = () => setConnected(true);
         socket.onmessage = (event) => {
           if (disposed) return;
-          const data = JSON.parse(String(event.data)) as {
-            channel: string;
-            data: {
-              text?: string;
-              level?: string;
-              event?: string;
-              source_plugin?: string;
-            };
-          };
-          if (data.channel === "ping") return;
+          const data = parseLiveEvent(String(event.data));
+          if (!data || data.channel === "ping") return;
           refresh.push(data);
           if (data.data.level === "error") eventBus.emit("ERROR", data.data);
           else if (data.data.event === "ORDER_PAID")
@@ -643,7 +635,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="version">
             <span>FUNPAY PLUS</span>
-            <span>v0.1.6</span>
+            <span>v0.1.7</span>
           </div>
         </div>
       </aside>
@@ -950,3 +942,5 @@ createRoot(document.getElementById("root")!).render(
 import "./appearance.css";
 
 import "./motion-design.css";
+
+import "./polish.css";

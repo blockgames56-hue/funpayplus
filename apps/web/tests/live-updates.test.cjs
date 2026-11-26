@@ -80,3 +80,15 @@ test(
     assert.equal(calls, 0);
   },
 );
+
+test("invalid WebSocket frames are ignored while valid frames remain usable", () => {
+  for (const raw of ["not JSON", "null", "[]", "{}", '{"channel":"chats"}', '{"channel":"logs","data":null}', '{"channel":"logs","data":{"level":5}}']) assert.equal(api.parseLiveEvent(raw), null);
+  assert.deepEqual(api.parseLiveEvent('{"channel":"chats","data":{"event":"NEW_MESSAGE"}}'), {channel:"chats",data:{event:"NEW_MESSAGE"}});
+});
+
+test("unknown prototype-like channels cannot break query refresh", () => {
+  for (const channel of ["__proto__", "constructor", "toString"])
+    assert.equal(api.matchesLiveQuery(["dashboard", "/dashboard"], [{channel, data:{}}]), false);
+  let calls=0;const batch=api.createLiveRefresh(()=>calls++);
+  batch.push({channel:"constructor",data:{}});batch.dispose();assert.equal(calls,0);
+});

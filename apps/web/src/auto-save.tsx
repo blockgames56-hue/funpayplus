@@ -54,7 +54,7 @@ export function useAutoSave<T>(options: Options<T>) {
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
     if (!options.dirty || options.enabled === false) return;
-    if (signature === acknowledged.current) { setStatus("saved"); options.onSaved?.(options.value); return; }
+    if (signature === acknowledged.current) { setStatus("saved"); setError(""); options.onSaved?.(options.value); return; }
     setStatus(active.current ? "saving" : "waiting");
     timer.current = setTimeout(() => void pump(), options.delay ?? 600);
     return () => { if (timer.current) clearTimeout(timer.current); };
@@ -72,7 +72,7 @@ export function useAutoSave<T>(options: Options<T>) {
 }
 
 export function AutoSaveStatus({ state }: { state: ReturnType<typeof useAutoSave> }) {
-  return <div className={`auto-save-status ${state.error ? "failed" : ""}`} role="status" aria-live="polite">
+  return <div className={`auto-save-status ${state.error ? "failed" : ""}`} data-save-state={state.status} role="status" aria-live="polite">
     {state.error ? <><span>{state.error}</span><Button secondary onClick={() => void state.flush()}>Повторить</Button></> : <span>{state.status === "saving" ? "Применяем…" : state.status === "waiting" ? "Есть изменения…" : state.status === "saved" ? "✓ Применено" : "Изменения применяются автоматически"}</span>}
   </div>;
 }
