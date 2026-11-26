@@ -1,0 +1,281 @@
+.kr-shell,
+.kr-stack {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.kr-shell h3,
+.kr-shell p {
+  margin: 0;
+}
+.kr-shell h3 {
+  font-size: 16px;
+}
+.kr-shell p,
+.kr-shell small {
+  color: var(--muted);
+  line-height: 1.65;
+}
+.kr-shell small {
+  font-size: 12px;
+}
+.kr-toolbar,
+.kr-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.kr-toolbar {
+  justify-content: space-between;
+}
+.kr-status {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+.kr-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.kr-status i.on {
+  background: var(--green);
+}
+.kr-tabs {
+  display: flex;
+  gap: 4px;
+  overflow: auto;
+  border-bottom: 1px solid var(--line);
+}
+.kr-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  padding: 14px 17px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+.kr-tabs button.active {
+  color: var(--green);
+  border-bottom-color: var(--green);
+}
+.kr-tabs button:hover {
+  color: var(--green);
+}
+.kr-card {
+  display: grid;
+  gap: 20px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  min-width: 0;
+}
+.kr-form,
+.kr-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.kr-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.kr-toggle > div {
+  display: grid;
+  gap: 7px;
+}
+.kr-toggle label {
+  font-size: 13px;
+}
+.kr-toggle button {
+  flex-shrink: 0;
+}
+.kr-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.kr-metrics article {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+}
+.kr-metrics article:last-child {
+  border: 0;
+}
+.kr-metrics strong {
+  font-size: 26px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.kr-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--green);
+}
+.kr-steps {
+  padding-left: 20px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 2.2;
+}
+.kr-shell code {
+  background: color-mix(in srgb, var(--green) 9%, transparent);
+  color: var(--green);
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.kr-save {
+  position: sticky;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--panel);
+  padding: 16px 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  z-index: 2;
+}
+.kr-list {
+  display: grid;
+}
+.kr-list article {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0;
+}
+.kr-list article:last-child {
+  border: 0;
+}
+.kr-list article > div:first-child {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.kr-table {
+  overflow: auto;
+  max-height: 560px;
+}
+.kr-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.kr-table th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.kr-table td,
+.kr-table th {
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.kr-table small {
+  display: block;
+  margin-top: 7px;
+}
+.kr-help {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.8;
+  max-height: 60vh;
+  overflow: auto;
+}
+.kr-shell details {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.kr-shell summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.kr-progress progress {
+  width: 100%;
+  height: 7px;
+  accent-color: var(--green);
+}
+.kr-shell input,
+.kr-shell textarea,
+.kr-shell select {
+  max-width: 100%;
+  min-width: 0;
+}
+.kr-toolbar > input {
+  max-width: 280px;
+}
+@media (max-width: 1100px) {
+  .kr-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kr-columns {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 900px) {
+  .kr-form {
+    grid-template-columns: 1fr;
+  }
+  .kr-card {
+    padding: 18px;
+  }
+  .kr-metrics article {
+    padding: 16px;
+  }
+  .kr-tabs button {
+    padding: 12px;
+  }
+  .kr-save {
+    bottom: 8px;
+  }
+  .kr-toolbar > input {
+    max-width: 100%;
+  }
+}
+
+/* Compact, theme-aware settings and selection controls. */
+.kr-settings-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+.kr-settings-tabs button { display:flex; align-items:center; gap:7px; border:1px solid var(--line); border-radius:10px; background:var(--panel); color:var(--muted); padding:9px 13px; cursor:pointer; }
+.kr-settings-tabs button.active { color:var(--green); border-color:var(--green); background:color-mix(in srgb,var(--green) 12%,transparent); }
+.kr-compact-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr)); gap:12px; align-items:start; }
+.kr-compact-grid .kr-toggle { margin:0; padding:12px; border:1px solid var(--line); border-radius:12px; }
+.kr-compact-grid .kr-toggle small { display:block; margin-top:5px; line-height:1.45; color:var(--muted); }
+.kr-field-help { font-size:12px; color:var(--muted); margin-top:5px; }
+.kr-selection { display:flex; align-items:center; flex-wrap:wrap; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); }
+.kr-selection label { display:flex; align-items:center; gap:8px; }
+.kr-lot-select { flex:none; }
+.kr-lot-caption { flex:1; min-width:120px; }
+.kr-selection input[type=checkbox],.kr-lot-select input { width:18px; height:18px; accent-color:var(--green); }

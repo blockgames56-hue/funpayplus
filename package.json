@@ -1,0 +1,16 @@
+{
+  "name": "funpay-plus",
+  "private": true,
+  "version": "0.1.4",
+  "workspaces": [
+    "apps/web",
+    "apps/desktop"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @funpay-plus/web",
+    "build": "npm run build -w @funpay-plus/web",
+    "typecheck": "npm run typecheck -w @funpay-plus/web",
+    "desktop:dev": "npm run dev -w @funpay-plus/desktop",
+    "desktop:build": "npm run build -w @funpay-plus/desktop"
+  }
+}

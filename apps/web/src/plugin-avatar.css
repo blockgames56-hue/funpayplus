@@ -1,0 +1,27 @@
+.plugin-avatar {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 15px;
+  border: 1px solid color-mix(in srgb, var(--green) 22%, var(--line));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--green) 14%, transparent), color-mix(in srgb, var(--green) 3%, var(--panel)));
+}
+.plugin-avatar img {
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  object-fit: contain;
+  display: block;
+}
+.plugin-avatar .plugin-emoji { font-size: 27px; }
+.catalog-icon:has(.plugin-avatar) {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}

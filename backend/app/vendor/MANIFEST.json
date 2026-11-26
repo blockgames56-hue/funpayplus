@@ -1,0 +1,12 @@
+[
+  {
+    "repository": "https://github.com/sometastycake/pysteamauth",
+    "commit": "cc34b26e886ef17f1cecc34b7024f2e77576b20a",
+    "archive_sha256": "86387e11a06845ab16e624e24d97e6d6701d1624e6fe4507282e45c91b2950ab"
+  },
+  {
+    "repository": "https://github.com/sometastycake/steam-password-change",
+    "commit": "1c7119c12a0b60a6cc6952abade514b896acaac8",
+    "archive_sha256": "e2680871b5a1d57d83805c53609596e18a8303ceb6e4ea1099df3024a058018f"
+  }
+]

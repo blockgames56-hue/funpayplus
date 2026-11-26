@@ -1,0 +1,169 @@
+[
+  {
+    "plugin": "steam-rent",
+    "key": "pc_request",
+    "title": "Запрос фото",
+    "text": "╔══════════════════════════════╗\n║  ✅ ОПЛАТА ПОЛУЧЕНА          ║\n╚══════════════════════════════╝\n\nСпасибо за покупку!\n\n🔐 Чтобы выдать Steam-аккаунт, нужно подтвердить, что вы в ПК-клубе.\n\n📸 Примеры правильных фото смотрите в описании лота (там 2-3 примера).\n\nВариант 1 — фото с телефона:\n  • Видно рабочий стол клубного ПК\n  • Слева открыто окно с датой/временем (как в примере)\n  • Видны признаки ПК-клуба: другие ПК/подсветка/интерьер\n\nВариант 2 — скриншот с ПК:\n  • Открыто окно с временем справа снизу\n  • Виден чат FunPay в небольшом окне\n  • Рабочий стол похож на клубный (игры/лаунчеры/клубный интерфейс)\n\n⏰ На отправку: {photo_timeout} минут.\n❗ Не присылайте чужие картинки из интернета.\n\nДля отмены заказа: !cancel",
+    "variables": [
+      "photo_timeout"
+    ],
+    "group": "Проверка ПК-клуба",
+    "source": "Auto_Steam_Rent.py:5977"
+  },
+  {
+    "plugin": "steam-rent",
+    "key": "pc_timeout",
+    "title": "Время истекло",
+    "text": "⏰ Время на подтверждение истекло.\n\nЕсли вы находитесь в ПК-клубе — напишите нам, разберёмся вручную.",
+    "variables": [],
+    "group": "Проверка ПК-клуба",
+    "source": "Auto_Steam_Rent.py:5997"
+  },
+  {
+    "plugin": "steam-rent",
+    "key": "pc_rejected",
+    "title": "Фото не прошло проверку",
+    "text": "❌ Верификация не пройдена.\n\nОтправьте новое фото, которое соответствует примерам из описания лота:\n  • вариант 1: фото с телефона в ПК-клубе;\n  • вариант 2: скриншот с клубного ПК.\n\nОтменить заказ можно командой: !cancel",
+    "variables": [],
+    "group": "Проверка ПК-клуба",
+    "source": "Auto_Steam_Rent.py:6002"
+  },
+  {
+    "plugin": "steam-rent",
+    "key": "pc_retry",
+    "title": "Повторная проверка",
+    "text": "❌ Это фото не подошло.\n\nОтправьте другое фото по инструкции в начале чата.\nОсталось попыток: {attempts_left}\n(сейчас отклонено раз: {reject_attempt})\n\nЕсли передумаете — отменить заказ можно командой: !cancel",
+    "variables": [
+      "attempts_left",
+      "reject_attempt"
+    ],
+    "group": "Проверка ПК-клуба",
+    "source": "Auto_Steam_Rent.py:6012"
+  },
+  {
+    "plugin": "steam-rent",
+    "key": "pc_final",
+    "title": "Попытки исчерпаны",
+    "text": "❌ Фото несколько раз не прошло проверку.\n\nЕсли вы уверены, что всё сделали верно, напишите продавцу в этот чат и в начале сообщения укажите: !помощь.\nКратко опишите ситуацию и при необходимости приложите новое фото.\n\nОтменить заказ можно командой: !cancel",
+    "variables": [],
+    "group": "Проверка ПК-клуба",
+    "source": "Auto_Steam_Rent.py:6019"
+  },
+  {
+    "plugin": "steam-rent",
+    "key": "pc_approved",
+    "title": "Фото одобрено",
+    "text": "✅ Верификация пройдена! Выдаю аккаунт...",
+    "variables": [],
+    "group": "Проверка ПК-клуба",
+    "source": "Auto_Steam_Rent.py:6026"
+  },
+  {
+    "plugin": "steam-rent",
+    "key": "pc_cancelled",
+    "title": "Проверка отменена",
+    "text": "❌ Аренда отменена.\n\nСвяжитесь с продавцом для уточнения деталей.",
+    "variables": [],
+    "group": "Проверка ПК-клуба",
+    "source": "Auto_Steam_Rent.py:6028"
+  },
+  {
+    "plugin": "steam-points",
+    "key": "delivery_start",
+    "title": "Заказ оплачен",
+    "text": "✅ Заказ получен!\n💎 Количество очков: {quantity} ({points_per_unit} за единицу × {units} шт.)\n\nУкажите ссылку на Ваш профиль Steam:",
+    "variables": [
+      "points_per_unit",
+      "quantity",
+      "units"
+    ],
+    "group": "Выдача",
+    "source": "auto_steam_points.py:102"
+  },
+  {
+    "plugin": "steam-points",
+    "key": "delivery_invalid",
+    "title": "Неверная ссылка Steam",
+    "text": "❌ Неверная ссылка на профиль Steam. Формат должен быть:\nhttps://steamcommunity.com/id/ВашID или\nhttps://steamcommunity.com/profiles/7656119XXXXXXXXXX",
+    "variables": [],
+    "group": "Выдача",
+    "source": "auto_steam_points.py:102"
+  },
+  {
+    "plugin": "steam-points",
+    "key": "delivery_confirm",
+    "title": "Подтверждение профиля",
+    "text": "✅ Ссылка принята: {target}\nПодтвердите: + / -",
+    "variables": [
+      "target"
+    ],
+    "group": "Выдача",
+    "source": "auto_steam_points.py:102"
+  },
+  {
+    "plugin": "steam-points",
+    "key": "delivery_success",
+    "title": "Очки заказаны",
+    "text": "🎉 Успешно! {quantity} очков добавлено!\n👉 Отслеживать: {target}/awards\n📥 Награды могут приходить до 20 минут.",
+    "variables": [
+      "quantity",
+      "target"
+    ],
+    "group": "Выдача",
+    "source": "auto_steam_points.py:102"
+  },
+  {
+    "plugin": "steam-points",
+    "key": "delivery_error",
+    "title": "Ошибка выдачи",
+    "text": "❌ Ошибка: {reason}\nПродавец проверит результат. Повторно оплачивать заказ не нужно.",
+    "variables": [
+      "reason"
+    ],
+    "group": "Выдача",
+    "source": "auto_steam_points.py:102"
+  },
+  {
+    "plugin": "auto-stars",
+    "key": "delivery_success",
+    "title": "Заказ выполнен",
+    "text": "⭐ Ваш заказ выполнен!\nКоличество: {quantity}\nПолучатель: @{target}\nСпасибо за покупку 💚",
+    "variables": [
+      "quantity",
+      "target"
+    ],
+    "group": "Выдача",
+    "source": "avtostars.py:159"
+  },
+  {
+    "plugin": "support-tickets",
+    "key": "support_auto",
+    "title": "Автоматическое обращение",
+    "text": "Пожалуйста, подтвердите заказы: {order_ids}",
+    "variables": [
+      "order_ids"
+    ],
+    "group": "Поддержка",
+    "source": "autoticket.py:48"
+  },
+  {
+    "plugin": "support-tickets",
+    "key": "support_manual",
+    "title": "Ручное обращение",
+    "text": "Подтвердите заказ: {order_id}",
+    "variables": [
+      "order_id"
+    ],
+    "group": "Поддержка",
+    "source": "autoticket.py:48"
+  },
+  {
+    "plugin": "auto-smm",
+    "key": "delivery_start",
+    "title": "Заказ оплачен",
+    "text": "❤️ Спасибо за оплату! Укажите ссылку для запуска заказа.",
+    "variables": [],
+    "group": "Выдача",
+    "source": "Auto SMM.py:1005"
+  }
+]

@@ -1,0 +1,14 @@
+.venv
+__pycache__
+storage
+.env
+.pytest_cache
+dist
+build
+*.spec
+*.db
+*.db-shm
+*.db-wal
+*.key
+*.key.dpapi
+*.log

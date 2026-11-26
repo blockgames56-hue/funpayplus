@@ -1,0 +1,22 @@
+[package]
+name = "funpay-plus"
+version = "0.1.4"
+description = "FunPay Plus trading terminal"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell = "2.6"
+tauri-plugin-opener = "2"
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

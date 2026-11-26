@@ -1,0 +1,67 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_DB: pulse
+      POSTGRES_USER: pulse_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse_user -d pulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    logging: *logging
+    stop_grace_period: 120s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pulse_user:${DB_PASSWORD}@postgres:5432/pulse
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
+      API_TOKEN: ${API_TOKEN:?Set API_TOKEN}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:8080}
+      SECURE_COOKIE: ${SECURE_COOKIE:-false}
+      FUNPAY_TRANSPORT: ${FUNPAY_TRANSPORT:-httpx}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      WORKERS_ENABLED: "true"
+      MAILBOX_KEY_STORE: master
+    volumes:
+      - backend_storage:/app/storage
+    healthcheck:
+      test: ["CMD", "python", "healthcheck.py"]
+      interval: 15s
+      timeout: 6s
+      retries: 5
+      start_period: 30s
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    logging: *logging
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+volumes:
+  pg_data:
+  backend_storage:

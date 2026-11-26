@@ -1,0 +1,643 @@
+.kosell-shell {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.kosell-shell h3,
+.kosell-shell h4,
+.kosell-shell p {
+  margin: 0;
+}
+.kosell-shell h3 {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kosell-shell h4 {
+  font-size: 14px;
+}
+.kosell-shell p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.kosell-shell small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.kosell-shell hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 4px 0;
+}
+.kosell-toolbar,
+.kosell-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.kosell-toolbar > div,
+.kosell-row > div:last-child:not(:first-child) {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.kosell-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.kosell-status i {
+  width: 7px;
+  height: 7px;
+  background: var(--muted);
+  border-radius: 50%;
+}
+.kosell-status i.on {
+  background: var(--success);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--success) 35%, transparent);
+}
+.kosell-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0;
+  scrollbar-width: thin;
+}
+.kosell-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+}
+.kosell-tabs button.active {
+  color: var(--green);
+  border-color: var(--green);
+}
+.kosell-tabs button:hover {
+  color: var(--green);
+}
+.kosell-stack {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.kosell-card {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  min-width: 0;
+}
+.kosell-two,
+.kosell-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.kosell-form-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.kosell-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--panel);
+}
+.kosell-metrics article {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  padding: 22px;
+  min-width: 0;
+}
+.kosell-metrics article:last-child {
+  border-right: 0;
+}
+.kosell-metrics svg {
+  color: var(--green);
+}
+.kosell-metrics small {
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+.kosell-metrics strong {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.kosell-finance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.kosell-finance article {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.kosell-finance article > div {
+  display: grid;
+  gap: 8px;
+}
+.kosell-finance strong {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.kosell-pill {
+  display: inline-flex;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--green);
+  background: rgb(var(--ui-accent-rgb) / 0.06);
+  white-space: nowrap;
+}
+.kosell-shell .kosell-warn,
+.kosell-pill.warn {
+  color: var(--warning);
+}
+.kosell-settings {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 24px;
+  min-width: 0;
+}
+.kosell-settings > nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid var(--line);
+  padding-right: 18px;
+  align-self: start;
+}
+.kosell-settings > nav button {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 16px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.kosell-settings > nav button.active {
+  background: rgb(var(--ui-accent-rgb) / 0.1);
+  border-color: rgb(var(--ui-accent-rgb) / 0.25);
+  color: var(--green);
+}
+.kosell-settings-body {
+  min-width: 0;
+}
+.kosell-settings-body > .panel {
+  border-left: 3px solid var(--green);
+}
+.kosell-key {
+  position: relative;
+  min-width: 0;
+}
+.kosell-key input {
+  width: 100%;
+  height: 62px;
+  padding: 25px 48px 9px 14px;
+  background: var(--panel);
+  color: inherit;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.kosell-key label {
+  position: absolute;
+  left: 14px;
+  top: 21px;
+  pointer-events: none;
+  color: var(--muted);
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.kosell-key input:focus + label,
+.kosell-key input:not(:placeholder-shown) + label {
+  top: 8px;
+  font-size: 10px;
+  color: var(--green);
+}
+.kosell-key input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgb(var(--ui-accent-rgb) / 0.13);
+}
+.kosell-key .icon-button {
+  position: absolute;
+  right: 9px;
+  top: 15px;
+}
+.kosell-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10px 0;
+}
+.kosell-switch-row > div {
+  display: grid;
+  gap: 5px;
+}
+.kosell-switch-row strong {
+  font-size: 13px;
+}
+.kosell-segments {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-width: 0;
+}
+.kosell-segments button {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+.kosell-segments button.active {
+  background: var(--green);
+  color: var(--on-accent);
+}
+.kosell-account-list {
+  display: grid;
+  gap: 8px;
+}
+.kosell-account-list label,
+.kosell-catalog-pick label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.kosell-account-list label span,
+.kosell-catalog-pick label span {
+  display: grid;
+  gap: 4px;
+}
+.kosell-shell input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+.kosell-shell input:disabled {
+  cursor: default;
+}
+.kosell-game-intervals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-height: 450px;
+  overflow: auto;
+}
+.kosell-table {
+  overflow: auto;
+  min-width: 0;
+  max-width: 100%;
+  scrollbar-width: thin;
+}
+.kosell-table table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 680px;
+  font-size: 13px;
+}
+.kosell-table th,
+.kosell-table td {
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  max-width: 330px;
+  overflow-wrap: anywhere;
+}
+.kosell-table th {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.kosell-table tbody tr:hover {
+  background: rgb(var(--ui-accent-rgb) / 0.035);
+}
+.kosell-table td small {
+  display: block;
+  margin-top: 5px;
+}
+.kosell-table td code {
+  font-size: 11px;
+}
+.kosell-table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.kosell-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.kosell-inline {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.kosell-inline > .field {
+  flex: 1;
+  min-width: 130px;
+}
+.kosell-inline > input {
+  flex: 1;
+  min-width: 0;
+}
+.kosell-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 180px;
+  color: var(--muted);
+}
+.kosell-search input {
+  width: 100%;
+}
+.kosell-soft {
+  padding: 16px;
+  border-radius: 9px;
+  background: rgb(var(--ui-accent-rgb) / 0.05);
+  display: grid;
+  gap: 10px;
+}
+.kosell-soft strong {
+  font-size: 20px;
+}
+.kosell-studio-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  min-width: 0;
+  overflow: hidden;
+}
+.kosell-studio-sidebar {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-right: 1px solid var(--line);
+  align-content: start;
+}
+.kosell-studio-sidebar p {
+  font-size: 12px;
+}
+.kosell-studio-texts {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 24px;
+  min-width: 0;
+}
+.kosell-studio-texts textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 68px;
+  background: var(--panel);
+  color: inherit;
+  line-height: 1.6;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.kosell-studio-texts textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgb(var(--ui-accent-rgb) / 0.1);
+}
+.kosell-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.kosell-tags code {
+  font-size: 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: var(--muted);
+}
+.kosell-catalog-pick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow: auto;
+}
+.kosell-catalog-pick label {
+  cursor: pointer;
+  font-size: 12px;
+}
+.kosell-catalog-pick span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.kosell-game-sources {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.kosell-preview-text {
+  display: grid;
+  gap: 12px;
+  max-height: 350px;
+  overflow: auto;
+  margin-top: 12px;
+  min-width: 230px;
+}
+.kosell-preview-text p {
+  white-space: pre-wrap;
+}
+.kosell-docs {
+  display: grid;
+  gap: 16px;
+  line-height: 1.7;
+}
+.kosell-docs ol {
+  padding-left: 24px;
+  display: grid;
+  gap: 12px;
+}
+.kosell-events .plugin-log-list {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  font-family: Consolas, monospace;
+}
+.kosell-events .level-info {
+  color: var(--success);
+}
+.kosell-events .level-warning {
+  color: var(--warning);
+}
+.kosell-events .level-error {
+  color: var(--danger);
+}
+.kosell-shell select {
+  width: 100%;
+  text-overflow: ellipsis;
+}
+.kosell-shell .field {
+  min-width: 0;
+}
+.kosell-shell .field > input,
+.kosell-shell .field > textarea {
+  width: 100%;
+}
+.kosell-shell .field small {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1250px) {
+  .kosell-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kosell-metrics article {
+    border-bottom: 1px solid var(--line);
+  }
+  .kosell-form-grid.three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kosell-settings {
+    grid-template-columns: 165px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .kosell-studio-layout {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+  .kosell-catalog-pick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1000px) {
+  .kosell-settings,
+  .kosell-studio-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .kosell-settings > nav {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 0 0 10px;
+  }
+  .kosell-settings > nav button {
+    flex: 1;
+    min-width: 140px;
+  }
+  .kosell-studio-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kosell-studio-sidebar > h4,
+  .kosell-studio-sidebar > p,
+  .kosell-studio-sidebar > hr {
+    grid-column: 1/-1;
+  }
+  .kosell-finance {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .kosell-card {
+    padding: 16px;
+  }
+  .kosell-tabs {
+    gap: 0;
+  }
+  .kosell-tabs button {
+    padding: 12px;
+  }
+  .kosell-toolbar > div {
+    width: 100%;
+  }
+  .kosell-toolbar .button {
+    flex: 1;
+  }
+  .kosell-two,
+  .kosell-form-grid,
+  .kosell-form-grid.three,
+  .kosell-game-intervals,
+  .kosell-game-sources,
+  .kosell-catalog-pick,
+  .kosell-studio-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .kosell-metrics article {
+    padding: 16px;
+  }
+  .kosell-metrics strong {
+    font-size: 14px;
+  }
+  .kosell-studio-texts,
+  .kosell-studio-sidebar {
+    padding: 16px;
+  }
+  .kosell-inline {
+    align-items: stretch;
+  }
+  .kosell-inline > .button {
+    width: 100%;
+  }
+  .kosell-finance article {
+    gap: 16px;
+  }
+  .kosell-row > p {
+    width: 100%;
+  }
+  .kosell-settings > nav button {
+    min-width: 130px;
+    padding: 12px;
+  }
+}

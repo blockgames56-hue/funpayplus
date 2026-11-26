@@ -1,0 +1,1 @@
+"""FunPay Plus backend."""

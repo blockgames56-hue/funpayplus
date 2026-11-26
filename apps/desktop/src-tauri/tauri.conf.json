@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FunPay Plus",
+  "version": "0.1.4",
+  "identifier": "com.funpayplus.terminal",
+  "build": {
+    "beforeDevCommand": "npm run dev -w @funpay-plus/web",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "npm run build -w @funpay-plus/web",
+    "frontendDist": "../../web/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "FunPay Plus",
+        "width": 1440,
+        "height": 920,
+        "minWidth": 760,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://funpay.com https://*.funpay.com https://sfunpay.com https://*.sfunpay.com; connect-src 'self' ipc: http: ws: https: wss:; font-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "externalBin": [
+      "binaries/pulse-backend"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/icon.ico",
+      "icons/icon.icns"
+    ]
+  }
+}
