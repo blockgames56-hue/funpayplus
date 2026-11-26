@@ -1,3 +1,4 @@
+import { LottieMark } from "./lottie-mark";
 import { useAppearance, AppearanceMotion } from "./appearance";
 import { lazy, Suspense, StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -19,6 +20,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { Command } from "cmdk";
 import {
   ArrowLeft,
+  ArrowUpRight,
+  Monitor,
+  Cloud,
   ArrowUpToLine,
   ChevronLeft,
   ChevronRight,
@@ -152,196 +156,160 @@ const icons = [
 
 function Login({ onLogin }: { onLogin: () => void }) {
   const [launch, setLaunch] = useState(
-    () => localStorage.getItem("funpay-launch") || (window.__TAURI_INTERNALS__ ? "" : "local"),
+    () => localStorage.getItem("funpay-launch") || "",
   );
-  const [token, setToken] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const backToModes = () => {
-    setToken("");
-    setError("");
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const chooseLocal = () => {
+    localStorage.removeItem(SERVER_URL_KEY);
+    localStorage.removeItem(SERVER_TOKEN_KEY);
+    setDesktopToken("");
+    localStorage.setItem("funpay-launch", "local");
+    window.location.reload();
+  };
+  const back = () => {
     localStorage.removeItem("funpay-launch");
     setLaunch("");
+    setError("");
   };
-  if (!launch)
-    return (
-      <div className="launch-screen">
-        <div className="login-brand">
-          <span className="brand-symbol">
-            <Zap size={22} />
-          </span>{" "}
-          FUNPAY<span>PLUS</span>
-        </div>
-        <div className="launch-content">
-          <span className="eyebrow">Первый запуск</span>
-          <h1>Где будет работать приложение?</h1>
-          <p>
-            Выберите место установки. Его можно изменить позже переносом на свой
-            сервер.
-          </p>
-          <div className="launch-options">
-            <button
-              onClick={() => {
-                localStorage.removeItem(SERVER_URL_KEY);
-                localStorage.removeItem(SERVER_TOKEN_KEY);
-                setDesktopToken("");
-                localStorage.setItem("funpay-launch", "local");
-                window.location.reload();
-              }}
-            >
-              <strong>На этом компьютере</strong>
-              <span>Локальная база и доступ только у вас</span>
-            </button>
-            <button
-              onClick={() => {
-                localStorage.setItem("funpay-launch", "vps");
-                setLaunch("vps");
-              }}
-            >
-              <strong>На своём VPS</strong>
-              <span>Перенос данных по SSH одной командой</span>
-            </button>
-          </div>
-        </div>
+  return (
+    <div className="launch-screen vivid-launch">
+      <div className="login-brand">
+        <span className="brand-symbol">
+          <Zap size={22} />
+        </span>
+        FUNPAY<span>PLUS</span>
       </div>
-    );
-  if (launch === "vps")
-    return (
-      <div className="launch-screen">
-        <div className="login-brand">
-          <span className="brand-symbol">
-            <Zap size={22} />
-          </span>{" "}
-          FUNPAY<span>PLUS</span>
+      <div className="launch-content">
+        <div className="launch-orbit">
+          <LottieMark variant="orbit" />
         </div>
-        <div className="launch-content">
-          <span className="eyebrow">Развёртывание</span>
-          <h1>Запуск на VPS</h1>
-          <p>
-            На своём компьютере выполните команду, указав пользователя и адрес
-            сервера. Потребуются SSH, Docker на VPS (установится скриптом) и
-            sudo.
-          </p>
-          <code>
-            powershell -File .\deploy\push-vps.ps1 -Server SERVER -User USER
-          </code>
-          <p>
-            Для публичного HTTPS добавьте <code>-Domain example.com</code> после
-            настройки DNS. Без домена доступ через SSH-туннель.
-          </p>
-          <ServerConnect initialOpen />
-          <Button
-            onClick={backToModes}
-          >
+        <span className="eyebrow">Ваш магазин. Ваш ритм.</span>
+        <h1>
+          {launch === "vps" ? (
+            "Магазин всегда онлайн."
+          ) : launch === "local" ? (
+            "Подключаем пространство."
+          ) : (
+            <>
+              Меньше рутины.
+              <br />
+              <span>Больше движения.</span>
+            </>
+          )}
+        </h1>
+        {!launch && (
+          <>
+            <p>
+              Где будет работать приложение? Выберите режим — и можно начинать.
+            </p>
+            <div className="launch-options">
+              <button onClick={chooseLocal}>
+                <span className="mode-icon">
+                  <Monitor size={26} />
+                </span>
+                <strong>На этом компьютере</strong>
+                <span>Запуск вместе с приложением</span>
+                <ArrowUpRight size={20} />
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.setItem("funpay-launch", "vps");
+                  setLaunch("vps");
+                }}
+              >
+                <span className="mode-icon purple">
+                  <Cloud size={26} />
+                </span>
+                <strong>На своём VPS</strong>
+                <span>Автоматизация работает 24/7</span>
+                <ArrowUpRight size={20} />
+              </button>
+            </div>
+            <small className="launch-note">
+              Без ключей входа. Настройки сохраняются в вашей установке.
+            </small>
+          </>
+        )}
+        {launch === "vps" && (
+          <>
+            <p>
+              Введите адрес установленной панели. Подключение произойдёт
+              автоматически.
+            </p>
+            <ServerConnect initialOpen />
+            <details className="launch-install">
+              <summary>Как установить сервер?</summary>
+              <p>Выполните на VPS под root:</p>
+              <code>
+                curl -fsSL
+                https://raw.githubusercontent.com/blockgames56-hue/funpayplus/main/install.sh
+                | bash -s -- --repo
+                https://github.com/blockgames56-hue/funpayplus.git
+              </code>
+              <p>
+                Без домена откройте SSH-туннель и укажите http://localhost:8080.
+              </p>
+            </details>
+          </>
+        )}
+        {launch === "local" && (
+          <>
+            <p>
+              Сервер пока недоступен. Проверьте, что он запущен, и повторите
+              подключение.
+            </p>
+            {error && <p role="alert">{error}</p>}
+            <Button
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  if (window.__TAURI_INTERNALS__) {
+                    const { invoke } = await import("@tauri-apps/api/core");
+                    setDesktopToken(await invoke<string>("backend_token"));
+                  } else {
+                    const session = await request<{ session_token: string }>(
+                      "/auth/connect",
+                      "POST",
+                    );
+                    setDesktopToken(session.session_token);
+                  }
+                  await request("/auth/session");
+                  onLogin();
+                } catch (reason) {
+                  setError((reason as Error).message);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              Повторить подключение
+            </Button>
+          </>
+        )}
+        {!!launch && (
+          <Button secondary className="login-back" onClick={back}>
             <ArrowLeft size={16} />
             Назад к выбору режима
           </Button>
-        </div>
-      </div>
-    );
-  return (
-    <div className="login-layout">
-      <div className="login-art">
-        <div className="login-brand">
-          <span className="brand-symbol">
-            <Zap size={22} />
-          </span>
-          FUNPAY<span>PLUS</span>
-        </div>
-        <div>
-          <span className="eyebrow">Независимый торговый терминал</span>
-          <h1>
-            Меньше рутины.
-            <br />
-            <span>Больше движения.</span>
-          </h1>
-          <p>
-            Ваши аккаунты, диалоги и автоматизация
-            <br />в одном рабочем пространстве.
-          </p>
-        </div>
-        <span className="login-caption">01 / ВАШ МАГАЗИН. ВАШ РИТМ.</span>
-        <div className="art-grid" />
-      </div>
-      <form
-        className="login-card"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setBusy(true);
-          setError("");
-          const task = localStorage.getItem(SERVER_URL_KEY)
-            ? // Режим «свой сервер»: cookie кросс-доменно не работает,
-              // проверяем ключ через Bearer-запрос сессии.
-              (() => {
-                const previous = localStorage.getItem(SERVER_TOKEN_KEY) || "";
-                setDesktopToken(token);
-                return request("/auth/session")
-                  .then(() => localStorage.setItem(SERVER_TOKEN_KEY, token))
-                  .catch((reason: Error) => {
-                    setDesktopToken(previous);
-                    throw reason;
-                  });
-              })()
-            : request("/auth/login", "POST", { token });
-          void task
-            .then(onLogin)
-            .catch((reason: Error) => setError(reason.message))
-            .finally(() => setBusy(false));
-        }}
-      >
-        <Button secondary className="login-back" disabled={busy} onClick={backToModes}>
-          <ArrowLeft size={17} />Назад к выбору режима
-        </Button>
-        <span className="eyebrow">Добро пожаловать</span>
-        <h2>Вход в терминал</h2>
-        <p>Введите ключ доступа к вашей установке.</p>
-        <label className="field">
-          <span>Ключ доступа</span>
-          <input
-            type="password"
-            value={token}
-            onChange={(event) => setToken(event.target.value)}
-            required
-            minLength={24}
-            autoComplete="current-password"
-            autoFocus
-            placeholder="••••••••••••••••••••••••"
-          />
-        </label>
-        {error && (
-          <p role="alert" className="inline-error">
-            {error}
-          </p>
         )}
-        <Button type="submit" disabled={busy}>
-          {busy ? (
-            <LoaderCircle className="spin" size={16} />
-          ) : (
-            <ChevronRight size={16} />
-          )}
-          Открыть рабочее пространство
-        </Button>
-        <small>
-          Ключ создаётся при первом запуске. Откройте файл{" "}
-          <code>storage/access.key</code> в папке проекта или используйте
-          API_TOKEN из .env.
-        </small>
-        <ServerConnect />
-      </form>
+      </div>
     </div>
   );
 }
 
 function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
   const [open, setOpen] = useState(initialOpen);
-  const [url, setUrl] = useState(() => localStorage.getItem(SERVER_URL_KEY) || "");
-  const [serverToken, setServerToken] = useState("");
+  const [url, setUrl] = useState(
+    () => localStorage.getItem(SERVER_URL_KEY) || "",
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const connected = localStorage.getItem(SERVER_URL_KEY);
   // В браузере панель уже открыта с адреса своего сервера; форма нужна
   // только десктоп-приложению, иначе кросс-доменный CORS вводит в заблуждение.
-  if (!connected && !window.__TAURI_INTERNALS__) return null;
+
   if (!open)
     return (
       <div className="server-connect">
@@ -359,6 +327,7 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
               onClick={() => {
                 localStorage.removeItem(SERVER_URL_KEY);
                 localStorage.removeItem(SERVER_TOKEN_KEY);
+                localStorage.setItem("funpay-launch", "local");
                 window.location.reload();
               }}
             >
@@ -373,14 +342,14 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
     setError("");
     try {
       const base = serverAddress(url);
-      await checkServer(base, serverToken);
+      await checkServer(base);
       if (window.__TAURI_INTERNALS__) {
         const { invoke } = await import("@tauri-apps/api/core");
         await invoke("stop_local_backend");
       }
       localStorage.setItem(SERVER_URL_KEY, base);
-      localStorage.setItem(SERVER_TOKEN_KEY, serverToken.trim());
-      localStorage.setItem("funpay-launch", "local");
+      localStorage.removeItem(SERVER_TOKEN_KEY);
+      localStorage.setItem("funpay-launch", "vps");
       window.location.reload();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -389,12 +358,15 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
     }
   }
   return (
-    <div className="server-connect expanded" onKeyDown={(event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        if (!busy) void connect();
-      }
-    }}>
+    <div
+      className="server-connect expanded"
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          if (!busy) void connect();
+        }
+      }}
+    >
       <label className="field">
         <span>Адрес сервера</span>
         <input
@@ -402,16 +374,6 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
           onChange={(event) => setUrl(event.target.value)}
           placeholder="https://funpay.example.com или http://127.0.0.1:8080"
           autoComplete="url"
-        />
-      </label>
-      <label className="field">
-        <span>Ключ доступа сервера (API_TOKEN из .env)</span>
-        <input
-          type="password"
-          value={serverToken}
-          onChange={(event) => setServerToken(event.target.value)}
-          placeholder="•••••••••••••••••••••••••"
-          autoComplete="current-password"
         />
       </label>
       {error && (
@@ -423,14 +385,24 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
         <Button secondary type="button" onClick={() => setOpen(false)}>
           Отмена
         </Button>
-        <Button type="button" disabled={busy || !url.trim()} onClick={() => void connect()}>
-          {busy ? <LoaderCircle className="spin" size={15} /> : <Link2 size={15} />}
+        <Button
+          type="button"
+          disabled={busy || !url.trim()}
+          onClick={() => void connect()}
+        >
+          {busy ? (
+            <LoaderCircle className="spin" size={15} />
+          ) : (
+            <Link2 size={15} />
+          )}
           Подключиться
         </Button>
       </div>
       <small>
         Сервер разворачивается командой{" "}
-        <code>powershell -File .\deploy\push-vps.ps1 -Server SERVER -User USER</code>
+        <code>
+          powershell -File .\deploy\push-vps.ps1 -Server SERVER -User USER
+        </code>
       </small>
     </div>
   );
@@ -608,8 +580,13 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
             <small>FunPay Plus</small>
           </div>
           <span className="tag" title={API || window.location.origin}>
-            {localStorage.getItem(SERVER_URL_KEY) || (!window.__TAURI_INTERNALS__ &&
-              !["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname)) ? "VPS" : "LOCAL"}
+            {localStorage.getItem(SERVER_URL_KEY) ||
+            (!window.__TAURI_INTERNALS__ &&
+              !["localhost", "127.0.0.1", "[::1]"].includes(
+                window.location.hostname,
+              ))
+              ? "VPS"
+              : "LOCAL"}
           </span>
         </div>
         <span className="nav-label">УПРАВЛЕНИЕ</span>
@@ -692,7 +669,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="version">
             <span>FUNPAY PLUS</span>
-            <span>v0.1.4</span>
+            <span>v0.1.5</span>
           </div>
         </div>
       </aside>
@@ -786,48 +763,48 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 5 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.14 }}
+              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
             >
               <PageBoundary key={location.pathname}>
-              <Suspense
-                fallback={
-                  <div className="route-loading">
-                    <LoaderCircle className="spin" size={24} />
-                    <span>Открываем раздел…</span>
-                  </div>
-                }
-              >
-                <Routes>
-                  <Route path="/dashboard" element={<Overview />} />
-                  <Route path="/accounts" element={<AccountsPage />} />
-                  <Route
-                    path="/accounts/:accountId"
-                    element={<AccountWorkspace />}
-                  />
-                  <Route path="/inbox" element={<InboxPage />} />
-                  <Route path="/lots" element={<LotsPage />} />
-                  <Route path="/auto-delivery" element={<DeliveryPage />} />
-                  <Route path="/proxies" element={<ProxiesPage />} />
-                  <Route path="/blacklist" element={<BlacklistPage />} />
-                  <Route path="/financials" element={<FinancialsPage />} />
-                  <Route path="/auto-replies" element={<AutoRepliesPage />} />
-                  <Route path="/loyalty" element={<LoyaltyPage />} />
-                  <Route path="/plugins" element={<PluginsPage />} />
-                  <Route
-                    path="/plugins/:pluginId"
-                    element={<PluginDetailPage />}
-                  />
-                  <Route path="/logs" element={<HealthPage />} />
-                  <Route path="/settings/*" element={<SettingsPage />} />
-                  <Route
-                    path="*"
-                    element={<Navigate replace to="/dashboard" />}
-                  />
-                </Routes>
-              </Suspense>
+                <Suspense
+                  fallback={
+                    <div className="route-loading">
+                      <LoaderCircle className="spin" size={24} />
+                      <span>Открываем раздел…</span>
+                    </div>
+                  }
+                >
+                  <Routes>
+                    <Route path="/dashboard" element={<Overview />} />
+                    <Route path="/accounts" element={<AccountsPage />} />
+                    <Route
+                      path="/accounts/:accountId"
+                      element={<AccountWorkspace />}
+                    />
+                    <Route path="/inbox" element={<InboxPage />} />
+                    <Route path="/lots" element={<LotsPage />} />
+                    <Route path="/auto-delivery" element={<DeliveryPage />} />
+                    <Route path="/proxies" element={<ProxiesPage />} />
+                    <Route path="/blacklist" element={<BlacklistPage />} />
+                    <Route path="/financials" element={<FinancialsPage />} />
+                    <Route path="/auto-replies" element={<AutoRepliesPage />} />
+                    <Route path="/loyalty" element={<LoyaltyPage />} />
+                    <Route path="/plugins" element={<PluginsPage />} />
+                    <Route
+                      path="/plugins/:pluginId"
+                      element={<PluginDetailPage />}
+                    />
+                    <Route path="/logs" element={<HealthPage />} />
+                    <Route path="/settings/*" element={<SettingsPage />} />
+                    <Route
+                      path="*"
+                      element={<Navigate replace to="/dashboard" />}
+                    />
+                  </Routes>
+                </Suspense>
               </PageBoundary>
             </motion.div>
           </AnimatePresence>
@@ -908,22 +885,33 @@ function App() {
     let live = true;
     async function init() {
       const desktop = Boolean(window.__TAURI_INTERNALS__);
-      if (localStorage.getItem(SERVER_URL_KEY)) {
-        // Режим «свой сервер»: ключ задаётся в окне входа, локальный sidecar не нужен.
-        setDesktopToken(localStorage.getItem(SERVER_TOKEN_KEY) || "");
-      } else if (desktop) {
-        if (localStorage.getItem("funpay-launch") !== "local") {
-          if (live) setAuthenticated(false);
-          return;
-        }
+      const mode = localStorage.getItem("funpay-launch");
+      localStorage.removeItem(SERVER_TOKEN_KEY);
+      if (!mode || (mode === "vps" && !localStorage.getItem(SERVER_URL_KEY))) {
+        if (live) setAuthenticated(false);
+        return;
+      }
+      if (!localStorage.getItem(SERVER_URL_KEY) && desktop) {
         const { invoke } = await import("@tauri-apps/api/core");
         setDesktopToken(await invoke<string>("backend_token"));
       }
       // Ожидание старта нужно только локальному sidecar; удалённый сервер
       // уже работает — долгие ретраи не нужны.
       const remote = Boolean(localStorage.getItem(SERVER_URL_KEY));
-      for (let attempt = 0; attempt < (desktop && !remote ? 30 : 1); attempt++) {
+      for (
+        let attempt = 0;
+        attempt < (desktop && !remote ? 30 : 1);
+        attempt++
+      ) {
         try {
+          if (remote) setDesktopToken(await checkServer(API));
+          else if (!desktop) {
+            const session = await request<{ session_token: string }>(
+              "/auth/connect",
+              "POST",
+            );
+            setDesktopToken(session.session_token);
+          }
           await request("/auth/session");
           if (live) setAuthenticated(true);
           return;
@@ -936,8 +924,9 @@ function App() {
     }
     void init().catch(() => setAuthenticated(false));
     function expired() {
-      setAuthenticated(false);
+      setAuthenticated(null);
       client.clear();
+      void init().catch(() => setAuthenticated(false));
     }
     window.addEventListener("session-expired", expired);
     const shutdownError = () =>
@@ -949,7 +938,9 @@ function App() {
       if (!localStorage.getItem(SERVER_URL_KEY)) {
         setAuthenticated(false);
         client.clear();
-        toast.error("Локальный сервер остановился. Проверьте, не занят ли порт 8765, и перезапустите приложение.");
+        toast.error(
+          "Локальный сервер остановился. Проверьте, не занят ли порт 8765, и перезапустите приложение.",
+        );
       }
     };
     window.addEventListener("local-backend-exited", backendExited);
@@ -972,12 +963,14 @@ function App() {
       />
       {authenticated === null ? (
         <div className="boot">
-          <Zap size={30} />
-          <p>Подключаем терминал…</p>
+          <LottieMark variant="orbit" />
+          <p>Собираем ваше рабочее пространство…</p>
         </div>
       ) : authenticated ? (
         <Terminal
           onLogout={() => {
+            localStorage.removeItem("funpay-launch");
+            setDesktopToken("");
             if (localStorage.getItem(SERVER_URL_KEY)) {
               localStorage.removeItem(SERVER_TOKEN_KEY);
               setDesktopToken("");
@@ -1004,3 +997,5 @@ createRoot(document.getElementById("root")!).render(
   </StrictMode>,
 );
 import "./appearance.css";
+
+import "./motion-design.css";

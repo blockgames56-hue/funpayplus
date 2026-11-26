@@ -1,3 +1,4 @@
+import { LottieMark } from "./lottie-mark";
 import {
   useEffect,
   useState,
@@ -7,7 +8,7 @@ import {
 } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Switch from "@radix-ui/react-switch";
-import { ArrowUpRight, Check, Inbox, LoaderCircle, X } from "lucide-react";
+import { ArrowUpRight, Check, LoaderCircle, X } from "lucide-react";
 import { toast } from "sonner";
 import { avatarSource, cachedAvatar } from "./avatar-cache";
 import { AvatarRequestError } from "./api";
@@ -119,7 +120,7 @@ export function Empty({
   return (
     <div className="empty">
       <div className="empty-icon">
-        <Inbox size={25} />
+        <LottieMark variant="orbit" />
       </div>
       <h3>{title}</h3>
       <p>{text}</p>
@@ -130,7 +131,7 @@ export function Empty({
 export function Pending() {
   return (
     <div className="loading">
-      <LoaderCircle className="spin" size={20} /> Загружаем данные…
+      <LottieMark variant="signal" /> <span>Загружаем данные…</span>
     </div>
   );
 }

@@ -46,7 +46,7 @@ try {
     if ($Domain) { $remoteCommand += " --domain '$Domain'" }
     Invoke-Checked 'ssh' @('-tt', '-p', "$Port", $target, $remoteCommand)
     Write-Host "Перенос завершён. $(if ($Domain) { "Панель: https://$Domain" } else { "Доступ: ssh -p $Port -L 8080:127.0.0.1:8080 $target ; затем http://localhost:8080" })"
-    Write-Host 'Для просмотра ключа входа на сервере: cd ~/funpay-plus && sudo bash deploy/server.sh token'
+    Write-Host 'В приложении выберите VPS и укажите адрес панели. Ключ входа не требуется.'
 } finally {
     $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
     $resolvedStage = [IO.Path]::GetFullPath($stage)

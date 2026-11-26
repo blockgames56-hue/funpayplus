@@ -22,7 +22,6 @@ function Get-RunningServer {
 
 function Show-RunningServer {
     Write-Host "FunPay Plus is already running: $appUrl" -ForegroundColor Green
-    Write-Host "Key file: $(Join-Path $projectRoot 'storage/access.key')"
     if ($Dev) { Write-Host 'Run npm run dev in a second terminal and open http://127.0.0.1:5173' }
     if (-not $NoBrowser) { Start-Process -FilePath $appUrl }
 }
@@ -56,7 +55,6 @@ try {
     # Reserve the port before migration and ASGI startup so an occupied address
     # cannot briefly run duplicate financial workers or rental schedulers.
     Write-Host "FunPay Plus: $appUrl" -ForegroundColor Green
-    Write-Host "Key file: $(Join-Path $projectRoot 'storage/access.key')"
     if ($Dev) { Write-Host 'Run npm run dev in a second terminal and open http://127.0.0.1:5173' }
     Invoke-Checked -FilePath $pythonPath -ArgumentList @($launcherPath, '--host', '127.0.0.1', '--port', '8765')
 }

@@ -1,3 +1,4 @@
+import { MotionBanner } from "./lottie-mark";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { requestId } from "./request-id";
 import { AppearanceSettings } from "./appearance";
@@ -246,6 +247,7 @@ export function Overview() {
           Данные вашего магазина
         </span>
       </PageHead>
+      <MotionBanner title="Ваш магазин — в движении." text="Следите за продажами, общайтесь с покупателями и управляйте автоматизацией в одном пространстве." label="FUNPAY PLUS · РАБОЧИЙ РИТМ" />
       <DataGuard query={query}>
         {data && (
           <>

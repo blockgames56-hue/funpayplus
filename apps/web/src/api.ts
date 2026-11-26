@@ -45,7 +45,8 @@ export async function request<T>(
     if (
       response.status === 401 &&
       path !== "/auth/login" &&
-      path !== "/auth/session"
+      path !== "/auth/session" &&
+      path !== "/auth/connect"
     )
       window.dispatchEvent(new Event("session-expired"));
     // Unified contract: {code, message, details?, correlation_id}; legacy `detail` still works.

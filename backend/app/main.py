@@ -140,7 +140,14 @@ from .schemas import (
     RuleCreate,
     TelegramSettings,
 )
-from .security import allowed_origins, authorized, require_auth, session_cookie, vault
+from .security import (
+    allowed_origins,
+    authorized,
+    require_auth,
+    require_origin,
+    session_cookie,
+    vault,
+)
 from .services import (
     accounts,
     automation,
@@ -177,7 +184,7 @@ async def lifespan(_app: FastAPI):
             await engine.dispose()
 
 
-app = FastAPI(title="FunPay Plus", version="0.1.4", lifespan=lifespan)
+app = FastAPI(title="FunPay Plus", version="0.1.5", lifespan=lifespan)
 app.middleware("http")(plugin_activity)
 app.add_middleware(
     CORSMiddleware,
@@ -230,6 +237,17 @@ async def login(payload: Login, request: Request, response: Response):
         path="/",
     )
     return {"ok": True}
+
+
+@app.post("/api/auth/connect")
+async def connect_without_key(request: Request, response: Response):
+    """Open this installation without a user-entered access key."""
+    require_origin(request)
+    value = session_cookie()
+    response.set_cookie("pulse_session", value, httponly=True, secure=config.secure_cookie,
+                        samesite="strict", max_age=86400, path="/")
+    response.headers["Cache-Control"] = "no-store"
+    return {"ok": True, "session_token": value}
 
 
 api = APIRouter(prefix="/api", dependencies=[Depends(require_auth)])

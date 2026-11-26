@@ -1,0 +1,573 @@
+/* Motion language: soft entrances, tactile controls and a few living accents. */
+:root {
+  --motion-purple: #a88bff;
+  --motion-cyan: #4ccce8;
+  --motion-amber: #f6bf72;
+}
+.main-area {
+  background-image:
+    radial-gradient(
+      ellipse at 85% 0%,
+      rgb(var(--ui-accent-rgb) / 0.055),
+      transparent 42%
+    ),
+    radial-gradient(ellipse at 15% 80%, #a88bff06, transparent 50%);
+}
+.lottie-mark {
+  position: relative;
+  flex: none;
+  width: 160px;
+  height: 160px;
+  color: var(--green);
+  pointer-events: none;
+}
+.lottie-canvas,
+.lottie-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.lottie-canvas > svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+.boot .lottie-mark {
+  width: 130px;
+  height: 130px;
+  filter: drop-shadow(0 0 24px rgb(var(--ui-accent-rgb) / 0.28));
+}
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.loading .lottie-mark {
+  width: 58px;
+  height: 58px;
+}
+.empty-icon {
+  width: 92px;
+  height: 92px;
+  background: transparent;
+  border: 0;
+}
+.empty-icon .lottie-mark {
+  width: 104px;
+  height: 104px;
+}
+.motion-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 160px;
+  padding: 22px 30px;
+  margin: 0 0 26px;
+  border: 1px solid rgb(var(--ui-accent-rgb) / 0.24);
+  border-radius: 20px;
+  background: linear-gradient(
+    110deg,
+    rgb(var(--ui-accent-rgb) / 0.12),
+    var(--panel) 65%,
+    #a88bff14
+  );
+}
+.motion-banner .banner-copy {
+  position: relative;
+  z-index: 1;
+}
+.motion-banner h2 {
+  font-size: clamp(20px, 2vw, 29px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+  margin: 12px 0;
+}
+.motion-banner p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 570px;
+}
+.motion-banner .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.12em;
+}
+.motion-banner .eyebrow i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 12px var(--green);
+}
+.motion-banner > .lottie-mark {
+  margin: -16px 12px -16px 0;
+  width: 160px;
+  height: 160px;
+  filter: drop-shadow(0 0 18px rgb(var(--ui-accent-rgb) / 0.15));
+}
+.banner-orb {
+  position: absolute;
+  z-index: -1;
+  width: 250px;
+  height: 250px;
+  right: -70px;
+  top: -100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #a88bff28, transparent 68%);
+  animation: ambient-breathe 7s ease-in-out infinite;
+}
+.button {
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.2s,
+    border-color 0.2s,
+    background 0.2s;
+}
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: none;
+  box-shadow: 0 7px 20px rgb(var(--ui-bg-rgb) / 0.15);
+}
+.button:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  box-shadow: none;
+}
+.button.primary {
+  box-shadow: 0 3px 16px rgb(var(--ui-accent-rgb) / 0.16);
+}
+.button.primary:hover:not(:disabled) {
+  box-shadow: 0 5px 24px rgb(var(--ui-accent-rgb) / 0.28);
+}
+.switch {
+  width: 38px;
+  height: 22px;
+  padding: 2px;
+  border-radius: 999px;
+  overflow: visible;
+  transition:
+    background 0.28s,
+    box-shadow 0.28s,
+    border-color 0.28s;
+}
+.switch-thumb {
+  width: 16px;
+  height: 16px;
+  transform: translateX(0);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px #0003;
+  transition:
+    transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.22s;
+}
+.switch-thumb[data-state="checked"] {
+  transform: translateX(16px);
+}
+.switch[data-state="checked"] {
+  box-shadow:
+    0 0 0 3px rgb(var(--ui-accent-rgb) / 0.08),
+    0 0 18px rgb(var(--ui-accent-rgb) / 0.18);
+}
+.switch:active:not(:disabled) .switch-thumb {
+  transform: translateX(0) scaleX(1.16);
+}
+.switch[data-state="checked"]:active:not(:disabled) .switch-thumb {
+  transform: translateX(16px) scaleX(1.16);
+}
+.nav-item {
+  transition:
+    background 0.22s,
+    color 0.22s,
+    box-shadow 0.22s,
+    transform 0.22s;
+}
+.nav-item:hover {
+  transform: translateX(3px);
+}
+.nav-item.active {
+  background: linear-gradient(
+    105deg,
+    rgb(var(--ui-accent-rgb) / 0.18),
+    rgb(var(--ui-accent-rgb) / 0.045)
+  );
+  box-shadow: inset 2px 0 0 var(--green);
+}
+.nav-item.active svg {
+  filter: drop-shadow(0 0 5px rgb(var(--ui-accent-rgb) / 0.35));
+}
+.brand-symbol {
+  box-shadow: 0 0 24px rgb(var(--ui-accent-rgb) / 0.16);
+}
+.brand-symbol svg {
+  filter: drop-shadow(0 0 5px rgb(var(--ui-accent-rgb) / 0.35));
+}
+.online-dot {
+  position: relative;
+}
+.online-dot:after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: status-ripple 3.8s ease-out infinite;
+}
+.catalog-card {
+  --card-glow: var(--green);
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.28s,
+    border-color 0.28s;
+  animation: card-arrive 0.5s backwards;
+}
+.catalog-card:nth-child(3n + 2) {
+  --card-glow: var(--motion-purple);
+  animation-delay: 65ms;
+}
+.catalog-card:nth-child(3n) {
+  --card-glow: var(--motion-cyan);
+  animation-delay: 130ms;
+}
+.catalog-card:before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 100% 0%,
+    color-mix(in srgb, var(--card-glow) 10%, transparent),
+    transparent 65%
+  );
+  opacity: 0.7;
+  transition: opacity 0.25s;
+}
+.catalog-card:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--card-glow) 48%, var(--line));
+  box-shadow:
+    0 16px 36px rgb(var(--ui-bg-rgb) / 0.18),
+    0 0 22px color-mix(in srgb, var(--card-glow) 8%, transparent);
+}
+.catalog-card:hover:before {
+  opacity: 1;
+}
+.plugin-avatar {
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s;
+}
+.catalog-card:hover .plugin-avatar {
+  transform: translateY(-2px) rotate(-5deg) scale(1.06);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--card-glow) 14%, transparent);
+}
+.kr-settings-tabs button,
+.catalog-filters button,
+.reply-nav button,
+.segmented button {
+  transition:
+    background 0.24s,
+    color 0.24s,
+    box-shadow 0.24s,
+    transform 0.24s;
+}
+.kr-settings-tabs button:hover,
+.catalog-filters button:hover,
+.reply-nav button:hover {
+  transform: translateY(-2px);
+}
+.metric:nth-child(3n + 2) {
+  background: linear-gradient(135deg, var(--panel), #a88bff0d);
+}
+.metric:nth-child(3n) {
+  background: linear-gradient(135deg, var(--panel), #4ccce810);
+}
+.metric {
+  transition:
+    transform 0.25s,
+    border-color 0.25s;
+}
+.metric:hover {
+  transform: translateY(-3px);
+  border-color: rgb(var(--ui-accent-rgb) / 0.3);
+}
+.modal-overlay[data-state="open"] {
+  animation: overlay-arrive 0.18s both;
+}
+.modal[data-state="open"] {
+  animation: dialog-arrive 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.auto-save-status:not(.failed) {
+  color: var(--muted);
+}
+.vivid-launch {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 20% 10%,
+      rgb(var(--ui-accent-rgb) / 0.12),
+      transparent 45%
+    ),
+    radial-gradient(ellipse at 90% 80%, #8b5cf618, transparent 50%),
+    rgb(var(--ui-bg-rgb));
+}
+.vivid-launch:before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  width: 500px;
+  height: 500px;
+  border: 1px solid rgb(var(--ui-accent-rgb) / 0.08);
+  border-radius: 50%;
+  right: -200px;
+  top: 10%;
+  box-shadow:
+    0 0 0 90px rgb(var(--ui-accent-rgb) / 0.025),
+    0 0 0 180px rgb(var(--ui-accent-rgb) / 0.015);
+}
+.vivid-launch .launch-content {
+  position: relative;
+  max-width: 840px;
+  margin: 9vh auto;
+  animation: card-arrive 0.6s both;
+}
+.vivid-launch h1 {
+  font-size: clamp(40px, 5.4vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+}
+.vivid-launch h1 > span {
+  background: linear-gradient(
+    100deg,
+    var(--green),
+    var(--motion-cyan) 65%,
+    var(--motion-purple)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.launch-orbit {
+  position: absolute;
+  right: 0;
+  top: -30px;
+  z-index: -1;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 30px rgb(var(--ui-accent-rgb) / 0.2));
+}
+.launch-orbit .lottie-mark {
+  width: 220px;
+  height: 220px;
+}
+.vivid-launch .launch-options {
+  margin-top: 38px;
+  gap: 20px;
+}
+.vivid-launch .launch-options button {
+  position: relative;
+  gap: 13px;
+  padding: 27px;
+  border-radius: 19px;
+  background: linear-gradient(
+    140deg,
+    rgb(var(--ui-accent-rgb) / 0.08),
+    var(--panel) 65%
+  );
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+.vivid-launch .launch-options button:nth-child(2) {
+  background: linear-gradient(140deg, #a88bff14, var(--panel) 65%);
+}
+.vivid-launch .launch-options button:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 18px 45px rgb(var(--ui-bg-rgb) / 0.25),
+    0 0 24px rgb(var(--ui-accent-rgb) / 0.08);
+}
+.vivid-launch .launch-options button > svg {
+  position: absolute;
+  top: 28px;
+  right: 25px;
+  color: var(--muted);
+}
+.vivid-launch .launch-options strong {
+  font-size: 20px;
+  letter-spacing: -0.035em;
+}
+.mode-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  background: rgb(var(--ui-accent-rgb) / 0.12);
+  color: var(--green);
+  border: 1px solid rgb(var(--ui-accent-rgb) / 0.2);
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+.mode-icon.purple {
+  background: #a88bff16;
+  color: var(--motion-purple);
+  border-color: #a88bff33;
+}
+.launch-note {
+  display: block;
+  text-align: center;
+  margin-top: 23px;
+  color: var(--muted);
+}
+.launch-install {
+  margin: 22px 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+.launch-install summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+.vivid-launch .server-connect.expanded {
+  max-width: 620px;
+  margin-top: 28px;
+  background: var(--panel);
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+.vivid-launch .server-connect .field > span {
+  font-size: 14px;
+}
+.vivid-launch .login-back {
+  margin-top: 24px;
+}
+@keyframes ambient-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(14px) scale(1.12);
+    opacity: 1;
+  }
+}
+@keyframes status-ripple {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+  65%,
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+@keyframes card-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes overlay-arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dialog-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 14px)) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@media (max-width: 760px) {
+  .motion-banner {
+    padding: 21px;
+    min-height: 140px;
+  }
+  .motion-banner > .lottie-mark {
+    width: 105px;
+    height: 105px;
+    margin-right: -15px;
+  }
+  .motion-banner h2 {
+    font-size: 22px;
+  }
+  .motion-banner .eyebrow {
+    font-size: 10px;
+  }
+  .motion-banner p {
+    font-size: 13px;
+  }
+  .launch-orbit {
+    opacity: 0.2;
+    right: -60px;
+    top: -40px;
+  }
+  .vivid-launch .launch-content {
+    margin: 9vh auto;
+  }
+  .vivid-launch .launch-options {
+    grid-template-columns: 1fr;
+  }
+  .vivid-launch {
+    padding: 24px;
+  }
+  .vivid-launch .launch-options button {
+    padding: 23px;
+  }
+  .motion-banner > .banner-copy {
+    min-width: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .catalog-card:hover,
+  .nav-item:hover,
+  .button:hover:not(:disabled),
+  .vivid-launch .launch-options button:hover {
+    transform: none;
+  }
+  .motion-banner .banner-orb,
+  .online-dot:after {
+    animation: none;
+  }
+}
+html[data-motion="off"] .catalog-card:hover,
+html[data-motion="off"] .button:hover:not(:disabled),
+html[data-motion="off"] .nav-item:hover,
+html[data-motion="off"] .vivid-launch .launch-options button:hover {
+  transform: none;
+}
+
+.launch-options .mode-icon {
+  color: var(--green);
+}
+.launch-options .mode-icon.purple {
+  color: var(--motion-purple);
+}

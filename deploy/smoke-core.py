@@ -50,6 +50,19 @@ with tempfile.TemporaryDirectory(prefix="funpay-core-smoke-") as temporary:
             else:
                 raise RuntimeError("Packaged server did not become ready")
             assert health["ok"] is True
+            connect_request = urllib.request.Request(base + "/api/auth/connect", data=b"{}",
+                                                     headers={"Content-Type": "application/json", "Origin": base})
+            with opener.open(connect_request, timeout=3) as response:
+                session = json.loads(response.read())["session_token"]
+                assert "HttpOnly" in response.headers.get("Set-Cookie", "")
+                assert response.headers.get("Cache-Control") == "no-store"
+            assert session != env["API_TOKEN"] and "." in session
+            for path in ("/api/auth/session", "/api/health"):
+                request = urllib.request.Request(base + path, headers={"Authorization": "Bearer " + session,
+                                                                       "Origin": "http://tauri.localhost"})
+                with opener.open(request, timeout=3) as response:
+                    assert json.loads(response.read())["ok"] is True
+            print("PASS: packaged keyless connection, HttpOnly cookie and desktop signed session")
             assert b"<html" in get("/").lower()
             status = json.loads(get("/api/automation/status"))
             assert status["accounts"] == [] and status["unknown_sends"] == 0

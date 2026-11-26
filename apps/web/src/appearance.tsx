@@ -1,3 +1,4 @@
+import { usePrefersReducedMotion } from "./motion-preferences";
 import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import { create } from "zustand";
@@ -236,8 +237,9 @@ export function AppearanceSettings() {
 
 export function AppearanceMotion({ children }: { children: ReactNode }) {
   const motion = useAppearance((s) => s.motion);
+  const reduced = usePrefersReducedMotion();
   return (
-    <MotionConfig reducedMotion={motion ? "user" : "always"}>
+    <MotionConfig reducedMotion={motion && !reduced ? "never" : "always"}>
       {children}
     </MotionConfig>
   );

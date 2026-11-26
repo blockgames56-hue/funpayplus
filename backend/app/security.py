@@ -26,11 +26,7 @@ def allowed_origins() -> list[str]:
     подделать из обычного браузера, а переопределение ALLOWED_ORIGINS на
     сервере не должно отключать подключение десктоп-клиента к серверу.
     """
-    origins = [
-        item.strip()
-        for item in config.allowed_origins.split(",")
-        if item.strip()
-    ]
+    origins = [item.strip() for item in config.allowed_origins.split(",") if item.strip()]
     origins += ["tauri://localhost", "http://tauri.localhost"]
     if config.public_origin:
         origins.append(config.public_origin)
@@ -38,16 +34,21 @@ def allowed_origins() -> list[str]:
 
 
 def authorized(token: str | None, cookie: str | None) -> bool:
-    if token and secrets.compare_digest(token, config.api_token):
+    if token and token.isascii() and secrets.compare_digest(token, config.api_token):
         return True
-    if cookie and "." in cookie:
-        expiry, signature = cookie.split(".", 1)
+    for session in (token, cookie):
+        if not session or not session.isascii() or "." not in session:
+            continue
+        expiry, signature = session.split(".", 1)
         expected = hmac.new(config.api_token.encode(), expiry.encode(), hashlib.sha256).hexdigest()
-        return (
-            expiry.isdigit()
+        if (
+            expiry.isascii()
+            and expiry.isdigit()
+            and len(expiry) <= 12
             and int(expiry) > time.time()
             and secrets.compare_digest(signature, expected)
-        )
+        ):
+            return True
     return False
 
 
@@ -55,6 +56,10 @@ async def require_auth(request: Request) -> None:
     token = request.headers.get("authorization", "").removeprefix("Bearer ")
     if not authorized(token, request.cookies.get("pulse_session")):
         raise HTTPException(401, "Требуется вход")
+    require_origin(request)
+
+
+def require_origin(request: Request) -> None:
     origin = request.headers.get("origin")
     allowed = allowed_origins()
     if origin and origin not in allowed and origin != str(request.base_url).rstrip("/"):

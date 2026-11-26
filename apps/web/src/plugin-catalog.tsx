@@ -1,3 +1,4 @@
+import { MotionBanner } from "./lottie-mark";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
@@ -150,6 +151,7 @@ export function PluginCatalog() {
   });
   return (
     <div className="plugin-catalog">
+      <MotionBanner title="Больше возможностей. Меньше рутины." text="Подключайте плагины, настраивайте автоматизацию и задавайте свой ритм продаж." label="ПЛАГИНЫ · ПРОСТРАНСТВО ВОЗМОЖНОСТЕЙ" />
       <div className="catalog-heading">
         <div>
           <span className="eyebrow">Автоматизация</span>

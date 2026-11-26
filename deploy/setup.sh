@@ -72,4 +72,4 @@ if grep -qE '^DOMAIN=.+$' .env; then
 else
   echo 'Доступ с ПК: ssh -L 8080:127.0.0.1:8080 USER@SERVER → http://localhost:8080'
 fi
-echo 'Ключ входа: sudo bash deploy/server.sh token'
+echo 'Откройте панель и выберите режим запуска. Ключ входа не требуется.'

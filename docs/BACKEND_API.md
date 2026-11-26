@@ -1,9 +1,10 @@
 # Backend API: текущий вертикальный срез
 
-API сохраняет существующие пути frontend, а не добавляет второй несовместимый контракт. Авторизация: существующий Bearer/session + origin checks. Backend слушает localhost; single ASGI process. Актуальная схема `/openapi.json`.
+API сохраняет существующие пути frontend, а не добавляет второй несовместимый контракт. Подключение с 0.1.5 — без ручного ключа: POST /api/auth/connect проверяет Origin, устанавливает HttpOnly-cookie и возвращает подписанный session_token для desktop. Далее используется Bearer/session + origin checks. Сессия не содержит постоянный секрет сервера. Backend слушает localhost; single ASGI process. Актуальная схема `/openapi.json`.
 
 | Метод / путь | Действие |
 |---|---|
+| POST /api/auth/connect | Вход без ручного ключа; `{ok, session_token}`, cookie на 24 часа, `Cache-Control: no-store` |
 | GET /api/health | Существующая проверка БД/сервиса |
 | GET, POST /api/accounts | Список / добавление аккаунта |
 | GET /api/chats | Чаты из SQLite |
