@@ -16,3 +16,5 @@
 
 .tg-settings .setting-row>div{display:grid;gap:6px;min-width:0;flex:1}.tg-settings .setting-row small{display:block;color:var(--muted);line-height:1.6;font-size:12px}.tg-pair-link>.external{display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px;border:1px solid var(--line);border-radius:10px;text-decoration:none;background:rgb(var(--ui-accent-rgb)/.1)}
 .telegram-mode .control-links{display:none}.tg-appearance{margin-bottom:18px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.tg-appearance>summary{padding:18px;font-weight:600;cursor:pointer}.tg-appearance>.appearance-settings{margin:0;border:0}.telegram-mode .settings-grid>.tg-settings{order:-1}
+
+.vps-easy-install{display:grid;gap:12px;min-width:0}.vps-easy-install p{font-size:13px;line-height:1.65;color:var(--muted);margin:0}.vps-easy-install code{display:block;padding:14px;border:1px solid var(--line);border-radius:10px;background:rgb(var(--ui-bg-rgb));white-space:normal;overflow-wrap:anywhere;font-size:12px;line-height:1.7}.vps-easy-install small{color:var(--muted);line-height:1.6;font-size:12px}.vps-easy-install>.button{justify-self:start}

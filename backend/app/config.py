@@ -20,6 +20,7 @@ class Config(BaseSettings):
     )
     public_origin: str = ""
     secure_cookie: bool = False
+    telegram_only: bool = False
     workers_enabled: bool = True
     mailbox_key_store: str = "system"
     funpay_transport: str = "httpx"

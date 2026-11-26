@@ -4,7 +4,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 umask 077
 [[ -f .env ]] || { echo 'Сначала выполните sudo bash install.sh.' >&2; exit 1; }
 compose=(docker compose -f docker-compose.yml)
-if grep -qE '^DOMAIN=.+$' .env; then compose+=(-f deploy/compose.https.yml); fi
+if grep -qE '^DOMAIN=.+$' .env; then compose+=(-f deploy/compose.https.yml)
+elif grep -qE '^PUBLIC_IP=.+$' .env; then compose+=(-f deploy/compose.ip.yml); fi
 backup() {
   mkdir -p backups
   local directory running
@@ -22,6 +23,8 @@ backup() {
 }
 case "${1:-status}" in
   status) "${compose[@]}" ps ;;
+  telegram) bash deploy/connect-telegram.sh ;;
+  easy) bash deploy/setup.sh --easy ;;
   logs) "${compose[@]}" logs --tail 100 -f ;;
   token) "${compose[@]}" exec -T backend python -c 'from app.config import config; print(config.api_token)' ;;
   start) "${compose[@]}" up -d --wait --wait-timeout 300 ;;
@@ -39,5 +42,5 @@ case "${1:-status}" in
     "${compose[@]}" stop backend
     "${compose[@]}" up -d --wait --wait-timeout 300
     ;;
-  *) echo 'Использование: sudo bash deploy/server.sh {status|logs|token|start|stop|restart|backup|update}' >&2; exit 1 ;;
+  *) echo 'Использование: sudo bash deploy/server.sh {status|logs|telegram|easy|token|start|stop|restart|backup|update}' >&2; exit 1 ;;
 esac

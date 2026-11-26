@@ -127,7 +127,11 @@ async def protect_public_connect(request: Request):
     if local:
         return
     settings, _ = await configuration()
-    if not settings.get("mini_app_url") and not await get_setting("telegram_public_lock", False):
+    if (
+        not config.telegram_only
+        and not settings.get("mini_app_url")
+        and not await get_setting("telegram_public_lock", False)
+    ):
         return
     from .security import authorized
 

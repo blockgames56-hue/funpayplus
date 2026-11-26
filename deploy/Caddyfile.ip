@@ -1,0 +1,14 @@
+{
+    # Browsers connecting to an IP may omit SNI; the container has a private IP.
+    default_sni {$PUBLIC_IP}
+}
+
+{$PUBLIC_IP} {
+    tls {
+        issuer acme https://acme-v02.api.letsencrypt.org/directory {
+            profile shortlived
+        }
+    }
+    encode zstd gzip
+    reverse_proxy frontend:80
+}

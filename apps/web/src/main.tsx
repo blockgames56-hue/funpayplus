@@ -1,3 +1,4 @@
+import { VpsInstallHint } from "./vps-install";
 import { telegramMode, telegramApp } from "./telegram";
 import { TelegramHome, TelegramNavigation, TelegramGate } from "./telegram-mini";
 import { createLiveRefresh, matchesLiveQuery, parseLiveEvent } from "./live-updates";
@@ -243,16 +244,7 @@ function Login({ onLogin }: { onLogin: () => void }) {
             <ServerConnect initialOpen />
             <details className="launch-install">
               <summary>Как установить сервер?</summary>
-              <p>Выполните на VPS под root:</p>
-              <code>
-                curl -fsSL
-                https://raw.githubusercontent.com/blockgames56-hue/funpayplus/main/install.sh
-                | bash -s -- --repo
-                https://github.com/blockgames56-hue/funpayplus.git
-              </code>
-              <p>
-                Без домена откройте SSH-туннель и укажите http://localhost:8080.
-              </p>
+              <VpsInstallHint />
             </details>
           </>
         )}
@@ -645,7 +637,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="version">
             <span>FUNPAY PLUS</span>
-            <span>v0.1.8</span>
+            <span>v0.1.9</span>
           </div>
         </div>
       </aside>
