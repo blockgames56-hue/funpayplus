@@ -153,6 +153,8 @@ export interface Plugins {
   commands: { trigger: string; reply: string; match: 'exact' | 'contains'; is_active: boolean }[];
 }
 export interface Telegram {
+  control_enabled?: boolean;
+  mini_app_url?: string;
   token: string;
   has_token?: boolean;
   chat_id: string;

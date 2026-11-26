@@ -157,6 +157,7 @@ from .services import (
     save_setting,
     telegram,
 )
+from .telegram_control import router as telegram_control_router
 from .template_api import router as template_router
 from .workers import workers
 
@@ -176,6 +177,9 @@ async def lifespan(_app: FastAPI):
             await kosellrent.start()
             await email_codes.start_saved_mailbox()
             await lzt_market.worker.start()
+            from .telegram_control import control
+
+            await control.start()
         yield
     finally:
         try:
@@ -184,7 +188,7 @@ async def lifespan(_app: FastAPI):
             await engine.dispose()
 
 
-app = FastAPI(title="FunPay Plus", version="0.1.7", lifespan=lifespan)
+app = FastAPI(title="FunPay Plus", version="0.1.8", lifespan=lifespan)
 app.middleware("http")(plugin_activity)
 app.add_middleware(
     CORSMiddleware,
@@ -243,6 +247,15 @@ async def login(payload: Login, request: Request, response: Response):
 async def connect_without_key(request: Request, response: Response):
     """Open this installation without a user-entered access key."""
     require_origin(request)
+    from .telegram_control import protect_public_connect
+
+    await protect_public_connect(request)
+    incoming = request.headers.get("authorization", "").removeprefix("Bearer ")
+    from .telegram_control import authorized_session
+
+    if await authorized_session(incoming):
+        response.headers["Cache-Control"] = "no-store"
+        return {"ok": True, "session_token": incoming}
     value = session_cookie()
     response.set_cookie("pulse_session", value, httponly=True, secure=config.secure_cookie,
                         samesite="strict", max_age=86400, path="/")
@@ -1600,12 +1613,41 @@ async def loyalty_settings(payload: LoyaltySettings):
 
 
 @api.put("/settings/telegram")
-async def telegram_settings(payload: TelegramSettings):
-    data = payload.model_dump()
-    previous = await get_setting("telegram", {})
-    data["token"] = vault.encrypt(payload.token) if payload.token else previous.get("token", "")
-    await save_setting("telegram", data)
-    return {"ok": True}
+@api.patch("/settings/telegram")
+async def telegram_settings(payload: TelegramSettings, request: Request):
+    from .telegram_control import fingerprint, lock, sign_session, update_menu
+
+    changes = payload.model_dump(exclude_unset=True)
+    replacement_session = ""
+    async with lock:
+        previous = await get_setting("telegram", {})
+        if previous.get("token"):
+            from .services import scope_legacy_telegram_links
+
+            await scope_legacy_telegram_links(vault.decrypt(previous["token"]))
+        data = TelegramSettings.model_validate({**previous, "token": "", **changes}).model_dump()
+        token_changed = bool(payload.token and (not previous.get("token") or vault.decrypt(previous["token"]) != payload.token))
+        me = await telegram.request(payload.token, "getMe", {}) if token_changed else None
+        data["token"] = vault.encrypt(payload.token) if payload.token else previous.get("token", "")
+        if me:
+            await save_setting("telegram_bot", {"bot": fingerprint(payload.token), "username": me["username"]})
+            owner = await get_setting("telegram_owner", {})
+            if previous.get("token") and owner.get("bot") == fingerprint(vault.decrypt(previous["token"])):
+                owner = {**owner, "bot": fingerprint(payload.token), "generation": secrets.token_hex(16)}
+                await save_setting("telegram_owner", owner)
+                if data["control_enabled"] and request.headers.get("authorization", "").startswith("Bearer tg1."):
+                    replacement_session = sign_session(owner)
+            await save_setting("telegram_pair", {})
+        await save_setting("telegram", data)
+        if data["mini_app_url"]:
+            await save_setting("telegram_public_lock", True)
+    if data["token"] and previous.get("mini_app_url", "") != data["mini_app_url"]:
+        try:
+            await update_menu(vault.decrypt(data["token"]), data)
+        except FunPayError:
+            pass
+    await bus.publish("notifications", {"event": "TELEGRAM_SETTINGS"})
+    return {**data, "token": "", "has_token": bool(data["token"]), **({"session_token": replacement_session} if replacement_session else {})}
 
 
 @api.post("/telegram/test")
@@ -1952,20 +1994,26 @@ app.include_router(plugin_workspace_router)
 
 app.include_router(account_workspace_router)
 app.include_router(diagnostics_router)
+app.include_router(telegram_control_router)
 app.include_router(api)
 
 
 socket_tickets: dict[str, float] = {}
+socket_ticket_sessions: dict[str, str] = {}
 
 
 @app.post("/api/ws-ticket", dependencies=[Depends(require_auth)])
-async def ws_ticket():
+async def ws_ticket(request: Request):
     now = time.monotonic()
     for key, expiry in list(socket_tickets.items()):
         if expiry < now:
             del socket_tickets[key]
+            socket_ticket_sessions.pop(key, None)
     ticket = secrets.token_urlsafe(32)
     socket_tickets[ticket] = now + 30
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    if token.startswith("tg1."):
+        socket_ticket_sessions[ticket] = token
     return {"ticket": ticket}
 
 
@@ -1978,9 +2026,14 @@ async def websocket(socket: WebSocket):
         "host"
     )
     ticket_expiry = socket_tickets.pop(socket.query_params.get("ticket", ""), 0)
+    telegram_session = socket_ticket_sessions.pop(socket.query_params.get("ticket", ""), "")
     is_authorized = ticket_expiry > time.monotonic() or authorized(
         token, socket.cookies.get("pulse_session")
     )
+    if telegram_session:
+        from .telegram_control import authorized_session
+
+        is_authorized = is_authorized and await authorized_session(telegram_session)
     if not is_authorized or (origin and origin not in allowed and not same_origin):
         await socket.close(code=1008)
         return
@@ -1993,11 +2046,17 @@ async def websocket(socket: WebSocket):
     )
 
     async def send_events():
+        next_telegram_check = 0.0
         while True:
             try:
                 event = await asyncio.wait_for(queue.get(), 25)
             except asyncio.TimeoutError:
                 event = {"channel": "ping", "data": {"time": time.time()}}
+            if telegram_session and (time.monotonic() >= next_telegram_check or event.get("data", {}).get("event") in {"TELEGRAM_SETTINGS", "TELEGRAM_PAIRED", "TELEGRAM_ACCESS_CHANGED"}):
+                if not await authorized_session(telegram_session):
+                    await socket.close(code=1008)
+                    return
+                next_telegram_check = time.monotonic() + 5
             await socket.send_json(jsonable_encoder(event))
 
     sender = asyncio.create_task(send_events())

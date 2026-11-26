@@ -10,7 +10,7 @@ from urllib.parse import quote, urlparse
 
 import httpx
 import regex as re
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from .avatar_urls import normalize_avatar_url
 from .blacklist import is_blocked
@@ -694,6 +694,28 @@ class AccountService:
 accounts = AccountService()
 
 
+telegram_links_lock = asyncio.Lock()
+
+
+def telegram_link_scope(token: str, chat_id) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()[:24] + ":" + str(chat_id)
+
+
+async def scope_legacy_telegram_links(token: str):
+    # Original rows did not distinguish bots. Tag them with the old token before
+    # replacement so message #1 in a new bot cannot reply to an old buyer's chat.
+    async with telegram_links_lock:
+        if await get_setting("telegram_links_scoped", False):
+            return
+        from .models import TelegramLink
+
+        async with Session() as db:
+            await db.execute(update(TelegramLink).where(~TelegramLink.telegram_chat_id.contains(":"))
+                .values(telegram_chat_id=telegram_link_scope(token, "") + TelegramLink.telegram_chat_id))
+            await db.commit()
+        await save_setting("telegram_links_scoped", True)
+
+
 class TelegramService:
     def __init__(self):
         self.offset = 0
@@ -702,30 +724,31 @@ class TelegramService:
 
     async def request(self, token: str, method: str, payload: dict):
         try:
+            if method == "getUpdates":
+                # Long polling has its own connection and must not hold the send lock.
+                async with httpx.AsyncClient(timeout=40) as http:
+                    response = await http.post(f"https://api.telegram.org/bot{token}/{method}", json=payload)
+                    data = response.json()
+                    if not data.get("ok"):
+                        raise FunPayError("Telegram: проверьте токен и отсутствие второго запуска бота")
+                    return data["result"]
             async with self.rate_lock:
                 delay = self.next_send_at - perf_counter()
                 if delay > 0:
                     await asyncio.sleep(delay)
                 async with httpx.AsyncClient(timeout=15) as http:
                     for attempt in range(3):
-                        response = await http.post(
-                            f"https://api.telegram.org/bot{token}/{method}", json=payload
-                        )
+                        response = await http.post(f"https://api.telegram.org/bot{token}/{method}", json=payload)
                         self.next_send_at = perf_counter() + (1 if method == "sendMessage" else 0.2)
                         data = response.json()
                         if response.status_code == 429 and attempt < 2:
-                            retry = min(
-                                60, max(1, int(data.get("parameters", {}).get("retry_after", 5)))
-                            )
+                            retry = min(60, max(1, int(data.get("parameters", {}).get("retry_after", 5))))
                             await asyncio.sleep(retry)
                             continue
                         if not data.get("ok"):
-                            raise FunPayError(
-                                "Telegram отклонил запрос. Проверьте токен и Chat ID."
-                            )
+                            raise FunPayError("Telegram отклонил запрос. Проверьте токен и Chat ID.")
                         return data["result"]
-        except (httpx.HTTPError, ValueError):
-            # Never propagate an exception URL containing the bot token.
+        except (httpx.HTTPError, ValueError, KeyError, TypeError):
             raise FunPayError("Telegram недоступен") from None
 
     async def notify(
@@ -750,7 +773,7 @@ class TelegramService:
                 async with Session() as db:
                     db.add(
                         TelegramLink(
-                            telegram_chat_id=str(settings["chat_id"]),
+                            telegram_chat_id=telegram_link_scope(vault.decrypt(settings["token"]), settings["chat_id"]),
                             telegram_message_id=message["message_id"],
                             chat_id=chat_id,
                         )
@@ -766,41 +789,9 @@ class TelegramService:
             )
 
     async def poll_replies(self):
-        from .models import TelegramLink
+        from .telegram_control import control
 
-        settings = await get_setting("telegram", {})
-        if not settings.get("enabled") or not settings.get("token"):
-            return
-        saved = await get_setting("telegram_offset", 0)
-        self.offset = max(self.offset, saved)
-        updates = await self.request(
-            vault.decrypt(settings["token"]),
-            "getUpdates",
-            {"offset": self.offset, "timeout": 0, "allowed_updates": ["message", "callback_query"]},
-        )
-        for update in updates:
-            # Persist before dispatch to avoid duplicate sends after an ambiguous timeout/crash.
-            self.offset = update["update_id"] + 1
-            await save_setting("telegram_offset", self.offset)
-            if update.get("callback_query"):
-                from .reply_requests import handle_callback
-
-                await handle_callback(update["callback_query"], settings)
-                continue
-            message = update.get("message", {})
-            if str(message.get("chat", {}).get("id")) != str(settings.get("chat_id")):
-                continue
-            reply_id = message.get("reply_to_message", {}).get("message_id")
-            if reply_id and message.get("text"):
-                async with Session() as db:
-                    link = await db.scalar(
-                        select(TelegramLink).where(
-                            TelegramLink.telegram_chat_id == str(settings["chat_id"]),
-                            TelegramLink.telegram_message_id == reply_id,
-                        )
-                    )
-                    if link:
-                        await accounts.send(link.chat_id, message["text"])
+        await control.poll_once()
 
 
 telegram = TelegramService()

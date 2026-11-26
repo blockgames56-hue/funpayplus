@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useSyncedSettings } from "./synced-settings";
+import { useState } from 'react';
 import { AutoSaveStatus, useAutoSave } from './auto-save';
 import { Gift, RefreshCw } from 'lucide-react';
 import { useAccountStore } from './store';
@@ -32,7 +33,7 @@ export function LoyaltyPage() {
   const [promotionLot, setPromotionLot] = useState('');
   const [discount, setDiscount] = useState(10);
   const [hours, setHours] = useState(24);
-  useEffect(() => { if (query.data) setForm(old => old || query.data!); }, [query.data]);
+  useSyncedSettings<Settings | null>(query.data, setForm);
   const auto = useAutoSave({ value: form, dirty: !!form && !!query.data && JSON.stringify(form) !== JSON.stringify(query.data), enabled: !!form,
     save: value => request('/settings/loyalty', 'PUT', value), queryKeys: ['loyalty-settings'] });
   return <>

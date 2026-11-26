@@ -1,7 +1,8 @@
+import { useSyncedSettings } from "./synced-settings";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { requestId } from "./request-id";
 import { PluginPart, sectionInfo, usePluginSection } from "./plugin-sections";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   Check,
   CircleHelp,
@@ -331,7 +332,6 @@ export function IntegratedPlugin({ kind }: { kind: Kind }) {
   const accounts = useData<Account[]>("integrated-accounts", "/accounts");
   const action = useAction();
   const [form, setForm] = useState<Settings | null>(null);
-  const initialized = useRef(false);
   const managed = usePluginSection();
   const [localTab, setTab] = useState("setup");
   const tab = managed || localTab;
@@ -361,12 +361,7 @@ export function IntegratedPlugin({ kind }: { kind: Kind }) {
   const [jobFilter, setJobFilter] = useState("all");
   const [targets, setTargets] = useState<Record<number, string>>({});
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
-  useEffect(() => {
-    if (query.data && !initialized.current) {
-      initialized.current = true;
-      setForm(query.data.settings);
-    }
-  }, [query.data]);
+  useSyncedSettings<Settings | null>(query.data?.settings, setForm);
   function update<K extends keyof Settings>(key: K, value: Settings[K]) {
     setForm((old) => (old ? { ...old, [key]: value } : old));
     setDirty(true);

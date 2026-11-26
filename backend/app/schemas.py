@@ -235,12 +235,34 @@ class PromotionCreate(StrictModel):
 
 
 class TelegramSettings(StrictModel):
+    control_enabled: bool = False
+    mini_app_url: str = Field(default="", max_length=500)
+
+    @field_validator("mini_app_url")
+    @classmethod
+    def mini_url(cls, value):
+        from urllib.parse import urlsplit
+
+        if not value.strip():
+            return ""
+        url = urlsplit(value.strip())
+        if url.scheme != "https" or not url.hostname or url.username or url.password or url.query or url.fragment or url.path.rstrip("/") not in {"", "/telegram"}:
+            raise ValueError("Укажите HTTPS-адрес вашей панели без параметров")
+        return f"https://{url.netloc}/telegram"
+
     token: str = Field(default="", max_length=300)
     chat_id: str = Field(default="", max_length=100)
     events: list[Literal["orders", "chats", "lots", "stock", "errors", "tickets"]] = Field(
         default_factory=lambda: ["orders", "chats", "stock", "errors"]
     )
     enabled: bool = False
+
+    @field_validator("chat_id")
+    @classmethod
+    def chat_format(cls, value):
+        if value and not re.fullmatch(r"-?\d{1,20}", value):
+            raise ValueError("Chat ID должен быть числом; для владельца он заполняется автоматически")
+        return value
 
     @field_validator("token")
     @classmethod

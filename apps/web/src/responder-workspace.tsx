@@ -1,3 +1,4 @@
+import { useSyncedSettings } from "./synced-settings";
 import { requestId } from "./request-id";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -194,6 +195,7 @@ export default function ResponderWorkspace({
     [refund, setRefund] = useState<Refund | null>(null),
     [logFilter, setLogFilter] = useState("all");
   const [dirty, setDirty] = useState(false);
+  useSyncedSettings<ReplyConfig | null>(query.data?.settings, setDraft);
   const data = query.data,
     cfg = draft || data?.settings;
   function set<K extends keyof ReplyConfig>(key: K, value: ReplyConfig[K]) {

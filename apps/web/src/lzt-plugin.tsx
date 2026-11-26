@@ -1,6 +1,7 @@
+import { useSyncedSettings } from "./synced-settings";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { PluginPart, usePluginSection } from "./plugin-sections";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import {
   Eye,
@@ -137,19 +138,7 @@ export function LztPlugin() {
       if (credentialRequest.current === version) setLoadingCredentials(false);
     }
   }
-  const initialized = useRef(false);
-  useEffect(() => {
-    if (query.data && !initialized.current) {
-      initialized.current = true;
-      setForm({
-        token: "",
-        filter_url: query.data.settings.filter_url,
-        max_price: Number(query.data.settings.max_price),
-        reserve_balance: Number(query.data.settings.reserve_balance),
-        enabled: query.data.settings.enabled,
-      });
-    }
-  }, [query.data]);
+  useSyncedSettings(query.data ? {token: "", filter_url: query.data.settings.filter_url, max_price: Number(query.data.settings.max_price), reserve_balance: Number(query.data.settings.reserve_balance), enabled: query.data.settings.enabled} : undefined, setForm);
   const filterOk = validFilter(form.filter_url);
   const auto = useAutoSave({ value: form, dirty, enabled: managed === "connection" ? !!form.token : filterOk && form.max_price > 0,
     save: value => request(managed === "connection" ? "/plugins/lzt/connection" : "/plugins/lzt", "PUT", managed === "connection" ? { token: value.token } : { ...value, enabled: query.data?.settings.enabled ?? value.enabled }),

@@ -7,6 +7,7 @@ import logging
 async def stop_background_tasks(*, strict=True):
     from . import email_codes, integrated_jobs, lzt_market, steam_rentals
     from .automation_plugins import responder
+    from .telegram_control import control
     from .workers import workers
 
     workers.begin_shutdown()
@@ -19,7 +20,7 @@ async def stop_background_tasks(*, strict=True):
         task.cancel()
     results = await asyncio.gather(
         lzt_market.worker.stop(), email_codes.stop_mailbox(), integrated_jobs.stop(),
-        responder.stop(), *rotations, return_exceptions=True,
+        responder.stop(), control.stop(), *rotations, return_exceptions=True,
     )
     try:
         await workers.stop()

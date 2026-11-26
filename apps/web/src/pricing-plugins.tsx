@@ -1,3 +1,4 @@
+import { useSyncedSettings } from "./synced-settings";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { PluginPart, usePluginSection } from "./plugin-sections";
 import { useEffect, useRef, useState } from "react";
@@ -551,19 +552,7 @@ export function AutoRobuxPlugin() {
   });
   const [showCookie, setShowCookie] = useState(false);
   const [check, setCheck] = useState<PassCheck | null>(null);
-  const initialized = useRef(false);
-  useEffect(() => {
-    if (query.data && !initialized.current) {
-      initialized.current = true;
-      setForm((old) => ({
-        ...old,
-        universe_id: query.data.universe_id,
-        game_pass_id: query.data.game_pass_id,
-        target_amount: query.data.target_amount,
-        cover_fee: query.data.cover_fee,
-      }));
-    }
-  }, [query.data]);
+  useSyncedSettings(query.data ? {cookie: "", universe_id: query.data.universe_id, game_pass_id: query.data.game_pass_id, target_amount: query.data.target_amount, cover_fee: query.data.cover_fee} : undefined, setForm);
   const expected = form.cover_fee
     ? Math.ceil(form.target_amount / 0.7)
     : form.target_amount;

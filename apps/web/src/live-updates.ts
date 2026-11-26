@@ -10,6 +10,7 @@ export function parseLiveEvent(raw: string): LiveEvent | null {
 }
 
 const paths: Record<string, string[]> = {
+  notifications: ["/settings/", "/telegram/status", "/plugins/", "/workspaces/", "/accounts", "/lots", "/loyalty", "/dashboard"],
   accounts: ["/accounts", "/dashboard", "/health"],
   chats: ["/chats", "/messages", "/dashboard"],
   orders: [

@@ -1,6 +1,7 @@
+import { useSyncedSettings } from "./synced-settings";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { PluginPart, usePluginSection } from "./plugin-sections";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   CheckCircle2,
   Gift,
@@ -74,12 +75,8 @@ export function FulfillmentPlugin({
   const [targets, setTargets] = useState<Record<number, string>>({});
   const [dirty, setDirty] = useState(false);
   const initialized = useRef(false);
-  useEffect(() => {
-    if (query.data && !initialized.current) {
-      initialized.current = true;
-      setForm(query.data.settings);
-    }
-  }, [query.data]);
+  useSyncedSettings(query.data?.settings, setForm);
+  if (query.data) initialized.current = true;
   const tasks = (query.data?.tasks ?? []).filter(
     (task) => !kind || task.kind === kind,
   );

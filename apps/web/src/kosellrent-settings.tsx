@@ -23,7 +23,7 @@ export function KosellSettings({ state }: { state: State }) {
     value: { account_id: Number(account), settings: { ...changes, api_key: apiKey } }, dirty,
     enabled: !!account && !editingKey && !state.operation.on,
     save: value => request("/plugins/kosell-rent/settings", "PUT", value),
-    onSaved: () => setDirty(false), queryKeys: ["kosell-rent", "plugin-catalog"],
+    onSaved: () => { setDirty(false); setChanges({}); setApiKey(""); }, queryKeys: ["kosell-rent", "plugin-catalog"],
   });
   const groups = state.groups.filter(group => group.id !== "creation");
   const active = groups.find(group => group.id === category);

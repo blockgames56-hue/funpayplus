@@ -64,6 +64,10 @@ with tempfile.TemporaryDirectory(prefix="funpay-core-smoke-") as temporary:
                     assert json.loads(response.read())["ok"] is True
             print("PASS: packaged keyless connection, HttpOnly cookie and desktop signed session")
             assert b"<html" in get("/").lower()
+            assert b"<html" in get("/telegram").lower()
+            telegram_status = json.loads(get("/api/telegram/status"))
+            assert not telegram_status["configured"] and not telegram_status["paired"]
+            print("PASS: packaged Telegram control API and Mini App route")
             status = json.loads(get("/api/automation/status"))
             assert status["accounts"] == [] and status["unknown_sends"] == 0
             assert json.loads(get("/api/automation/deliveries")) == []

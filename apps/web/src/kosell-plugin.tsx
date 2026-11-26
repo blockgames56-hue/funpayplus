@@ -1,3 +1,4 @@
+import { useSyncedSettings } from "./synced-settings";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -1109,6 +1110,7 @@ function Settings({
   const [config, setConfig] = useState<KoConfig>(
     structuredClone(state.settings),
   );
+  useSyncedSettings(state.settings, setConfig);
   const [key, setKey] = useState(""),
     [show, setShow] = useState(false),
     [search, setSearch] = useState("");

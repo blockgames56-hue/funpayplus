@@ -1,6 +1,6 @@
 [package]
 name = "funpay-plus"
-version = "0.1.7"
+version = "0.1.8"
 description = "FunPay Plus trading terminal"
 edition = "2021"
 

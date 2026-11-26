@@ -1,7 +1,8 @@
+import { useSyncedSettings } from "./synced-settings";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { usePluginSection } from "./plugin-sections";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff, Mail, PlugZap } from "lucide-react";
 import { toast } from "sonner";
 import { request, useData } from "./api";
@@ -50,7 +51,6 @@ export function EmailCodePlugin({ embedded = false }: { embedded?: boolean }) {
   const queryClient = useQueryClient();
   const status = useData<Status>("email-code-status", "/plugins/email-code");
   const [open, setOpen] = useState(false);
-  const initialized = useRef(false);
   const [form, setForm] = useState<Form>({
     host: "",
     port: 993,
@@ -60,17 +60,7 @@ export function EmailCodePlugin({ embedded = false }: { embedded?: boolean }) {
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [logs, setLogs] = useState<{ type: string; text: string }[]>([]);
-  useEffect(() => {
-    if (status.data && !initialized.current) {
-      initialized.current = true;
-      setForm({
-        host: status.data.host,
-        port: status.data.port,
-        username: status.data.username,
-        password: "",
-      });
-    }
-  }, [status.data]);
+  useSyncedSettings(status.data ? {host: status.data.host, port: status.data.port, username: status.data.username, password: ""} : undefined, setForm);
   const [dirty, setDirty] = useState(false), [editing, setEditing] = useState(false);
   const update = (value: Form) => { setForm(value); setDirty(true); };
   const auto = useAutoSave({ value: form, dirty, enabled: !editing && !!form.host && !!form.username && !!(form.password || status.data?.has_password),

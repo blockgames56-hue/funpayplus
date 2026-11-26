@@ -1,3 +1,4 @@
+import { useSyncedSettings } from "./synced-settings";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { requestId } from "./request-id";
 import { useEffect, useState } from "react";
@@ -418,9 +419,7 @@ function useRentSettings(data: Data, _refresh: () => void) {
   const [form, setForm] = useState<Record<string, unknown>>(data.settings),
     [dirty, setDirty] = useState(false),
     [busy] = useState(false);
-  useEffect(() => {
-    if (!dirty) setForm(data.settings);
-  }, [data.settings]);
+  useSyncedSettings(data.settings, setForm);
   const set = (key: string, value: unknown) => {
     setForm((f) => ({ ...f, [key]: value }));
     setDirty(true);

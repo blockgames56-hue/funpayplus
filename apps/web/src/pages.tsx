@@ -1,3 +1,6 @@
+import { telegramMode } from "./telegram";
+import { useSyncedSettings } from "./synced-settings";
+import { TelegramSettingsPanel } from "./telegram-settings";
 import { MotionBanner } from "./lottie-mark";
 import { AutoSaveStatus, useAutoSave } from "./auto-save";
 import { requestId } from "./request-id";
@@ -78,7 +81,6 @@ import type {
   Plugins,
   ProxyServer,
   Rule,
-  Telegram,
 } from "./types";
 
 export { navigation } from "./navigation";
@@ -2610,23 +2612,16 @@ export function AutoRepliesPage({ section }: { section?: string }) {
 
 export function SettingsPage() {
   const query = useData<AppSettings>("settings", "/settings/app");
-  const telegram = useData<Telegram>("telegram", "/settings/telegram");
-  const action = useAction();
   const [form, setForm] = useState<AppSettings | null>(null);
-  const [bot, setBot] = useState<Telegram | null>(null);
   const compact = useSettingsStore((s) => s.compact);
   const muted = useSettingsStore((s) => s.muted);
   const toggle = useSettingsStore((s) => s.toggle);
+  useSyncedSettings<AppSettings | null>(query.data, setForm);
   useEffect(() => {
-    if (query.data) setForm(old => old || query.data!);
-  }, [query.data]);
-  useEffect(() => {
-    if (telegram.data) setBot(old => old || telegram.data!);
-  }, [telegram.data]);
+    if (form) useSettingsStore.setState({compact: form.compact, muted: !form.sounds});
+  }, [form?.compact, form?.sounds]);
   const auto = useAutoSave({ value: form && { ...form, compact, sounds: !muted }, dirty: !!form && !!query.data && JSON.stringify(form) !== JSON.stringify(query.data), enabled: !!form,
     save: value => request("/settings/app", "PUT", value), queryKeys: ["settings"] });
-  const botAuto = useAutoSave({ value: bot, dirty: !!bot && !!telegram.data && JSON.stringify(bot) !== JSON.stringify(telegram.data), enabled: !!bot,
-    save: value => request("/settings/telegram", "PUT", value), queryKeys: ["telegram"] });
   return (
     <>
       <PageHead
@@ -2656,7 +2651,7 @@ export function SettingsPage() {
           </Link>
         </div>
       </section>
-      <AppearanceSettings />
+      {telegramMode ? <details className="tg-appearance"><summary>🎨 Внешний вид и анимации</summary><AppearanceSettings /></details> : <AppearanceSettings />}
       <div className="settings-grid">
         <section className="panel settings-panel">
           <div className="panel-head">
@@ -2671,7 +2666,7 @@ export function SettingsPage() {
               <Toggle
                 label="Компактный интерфейс"
                 checked={compact}
-                onChange={() => toggle("compact")}
+                onChange={() => { toggle("compact"); if (form) setForm({...form, compact: !compact}); }}
               />
             </div>
             <div className="setting-row">
@@ -2682,7 +2677,7 @@ export function SettingsPage() {
               <Toggle
                 label="Звуки событий"
                 checked={!muted}
-                onChange={() => toggle("muted")}
+                onChange={() => { toggle("muted"); if (form) setForm({...form, sounds: muted}); }}
               />
             </div>
             <div className="setting-row">
@@ -2762,101 +2757,7 @@ export function SettingsPage() {
             </DataGuard>
           </div>
         </section>
-        <section className="panel settings-panel">
-          <div className="panel-head">
-            <h2>Telegram</h2>
-            <span className="tag">Уведомления + ответы</span>
-          </div>
-          <div className="settings-body">
-            <DataGuard query={telegram}>
-              {bot && (
-                <>
-                  <div className="setting-row">
-                    <div>
-                      <strong>Подключить уведомления</strong>
-                      <p>Ответ на уведомление отправляется в чат FunPay</p>
-                    </div>
-                    <Toggle
-                      label="Уведомления Telegram"
-                      checked={bot.enabled}
-                      onChange={(value) => setBot({ ...bot, enabled: value })}
-                    />
-                  </div>
-                  <Field
-                    label="Bot Token"
-                    hint={
-                      bot.has_token
-                        ? "Токен сохранён. Оставьте пустым, чтобы сохранить текущий."
-                        : "Получите токен у BotFather."
-                    }
-                  >
-                    <input
-                      type="password"
-                      autoComplete="off"
-                      value={bot.token}
-                      onChange={(e) =>
-                        setBot({ ...bot, token: e.target.value })
-                      }
-                      placeholder={
-                        bot.has_token ? "••••••••••••••••" : "123456:ABC…"
-                      }
-                    />
-                  </Field>
-                  <Field label="Chat ID">
-                    <input
-                      value={bot.chat_id}
-                      onChange={(e) =>
-                        setBot({ ...bot, chat_id: e.target.value })
-                      }
-                      placeholder="Например, 123456789"
-                    />
-                  </Field>
-                  <div className="checkbox-list">
-                    {[
-                      ["orders", "Новые оплаченные заказы"],
-                      ["chats", "Сообщения покупателей"],
-                      ["tickets", "Споры и арбитраж"],
-                      ["lots", "Поднятие лотов"],
-                      ["stock", "Заканчиваются ключи"],
-                      ["errors", "Ошибки сессий и прокси"],
-                    ].map(([value, label]) => (
-                      <label className="checkbox-field" key={value}>
-                        <input
-                          type="checkbox"
-                          checked={bot.events.includes(value)}
-                          onChange={(e) =>
-                            setBot({
-                              ...bot,
-                              events: e.target.checked
-                                ? [...bot.events, value]
-                                : bot.events.filter((item) => item !== value),
-                            })
-                          }
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-                  <div className="head-actions">
-                    <AutoSaveStatus state={botAuto} />
-                    <Button
-                      secondary
-                      disabled={action.isPending}
-                      onClick={() =>
-                        action.mutate({
-                          path: "/telegram/test",
-                          success: "Тест отправлен",
-                        })
-                      }
-                    >
-                      Проверить
-                    </Button>
-                  </div>
-                </>
-              )}
-            </DataGuard>
-          </div>
-        </section>
+        <TelegramSettingsPanel />
       </div>
     </>
   );

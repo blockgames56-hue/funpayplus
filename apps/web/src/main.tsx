@@ -1,7 +1,9 @@
+import { telegramMode, telegramApp } from "./telegram";
+import { TelegramHome, TelegramNavigation, TelegramGate } from "./telegram-mini";
 import { createLiveRefresh, matchesLiveQuery, parseLiveEvent } from "./live-updates";
 import { LottieMark } from "./lottie-mark";
 import { useAppearance, AppearanceMotion } from "./appearance";
-import { lazy, Suspense, StrictMode, useEffect, useState } from "react";
+import { lazy, Suspense, StrictMode, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   BrowserRouter,
@@ -67,7 +69,7 @@ import { navigation } from "./navigation";
 import { checkServer, serverAddress } from "./server-connection";
 import { PageBoundary } from "./page-boundary";
 import { useAccountStore, useSettingsStore } from "./store";
-import { Avatar, Button, Confirm } from "./ui";
+import { Avatar, Button, Confirm, External } from "./ui";
 import { eventBus } from "./events";
 import type { Account, Dashboard, Lot } from "./types";
 import "@fontsource/inter/latin-400.css";
@@ -307,6 +309,9 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [approval, setApproval] = useState("");
+  const connection = useRef<AbortController | null>(null);
+  useEffect(() => () => connection.current?.abort(), []);
   const connected = localStorage.getItem(SERVER_URL_KEY);
   // В браузере панель уже открыта с адреса своего сервера; форма нужна
   // только десктоп-приложению, иначе кросс-доменный CORS вводит в заблуждение.
@@ -343,7 +348,11 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
     setError("");
     try {
       const base = serverAddress(url);
-      await checkServer(base);
+      connection.current?.abort();
+      connection.current = new AbortController();
+      const token = await checkServer(base, 10000, setApproval, connection.current.signal);
+      if (connection.current.signal.aborted) throw new Error("Подключение отменено");
+      sessionStorage.setItem("funpay-remote-session", JSON.stringify({base, token}));
       if (window.__TAURI_INTERNALS__) {
         const { invoke } = await import("@tauri-apps/api/core");
         await invoke("stop_local_backend");
@@ -382,8 +391,9 @@ function ServerConnect({ initialOpen = false }: { initialOpen?: boolean }) {
           {error}
         </p>
       )}
+      {approval && <p className="tg-device-approval"><External href={approval}>Подтвердить вход в Telegram</External><small>После подтверждения подключение продолжится автоматически.</small></p>}
       <div className="server-connect-actions">
-        <Button secondary type="button" onClick={() => setOpen(false)}>
+        <Button secondary type="button" onClick={() => { connection.current?.abort(); setOpen(false); }}>
           Отмена
         </Button>
         <Button
@@ -635,7 +645,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="version">
             <span>FUNPAY PLUS</span>
-            <span>v0.1.7</span>
+            <span>v0.1.8</span>
           </div>
         </div>
       </aside>
@@ -721,6 +731,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
                   }
                 >
                   <Routes>
+                    <Route path="/telegram" element={<TelegramHome />} />
                     <Route path="/dashboard" element={<Overview />} />
                     <Route path="/accounts" element={<AccountsPage />} />
                     <Route
@@ -752,6 +763,7 @@ function Terminal({ onLogout }: { onLogout: () => void }) {
             </motion.div>
           </AnimatePresence>
         </main>
+        {telegramMode && <TelegramNavigation />}
         <footer className="app-footer">
           <span>
             <i className={connected ? "online-dot" : "offline-dot"} />
@@ -824,9 +836,21 @@ function LinkLogo() {
 }
 function App() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [telegramError, setTelegramError] = useState("");
   useEffect(() => {
     let live = true;
     async function init() {
+      if (telegramMode) {
+        try {
+          const app = await telegramApp();
+          if (!app.initData) throw new Error("Откройте Mini App кнопкой в привязанном Telegram-боте.");
+          const session = await request<{session_token: string}>("/telegram/session", "POST", {init_data: app.initData});
+          setDesktopToken(session.session_token);
+          app.ready(); app.expand();
+          if (live) setAuthenticated(true);
+        } catch (error) { if (live) { setTelegramError((error as Error).message); setAuthenticated(false); } }
+        return;
+      }
       const desktop = Boolean(window.__TAURI_INTERNALS__);
       const mode = localStorage.getItem("funpay-launch");
       localStorage.removeItem(SERVER_TOKEN_KEY);
@@ -847,7 +871,11 @@ function App() {
         attempt++
       ) {
         try {
-          if (remote) setDesktopToken(await checkServer(API));
+          if (remote) {
+            const cached = JSON.parse(sessionStorage.getItem("funpay-remote-session") || "null") as {base: string; token: string} | null;
+            if (cached?.base === API) setDesktopToken(cached.token);
+            else setDesktopToken(await checkServer(API));
+          }
           else if (!desktop) {
             const session = await request<{ session_token: string }>(
               "/auth/connect",
@@ -912,6 +940,7 @@ function App() {
       ) : authenticated ? (
         <Terminal
           onLogout={() => {
+            sessionStorage.removeItem("funpay-remote-session");
             localStorage.removeItem("funpay-launch");
             setDesktopToken("");
             if (localStorage.getItem(SERVER_URL_KEY)) {
@@ -922,6 +951,8 @@ function App() {
             client.clear();
           }}
         />
+      ) : telegramMode ? (
+        <TelegramGate error={telegramError} />
       ) : (
         <Login onLogin={() => setAuthenticated(true)} />
       )}
@@ -944,3 +975,5 @@ import "./appearance.css";
 import "./motion-design.css";
 
 import "./polish.css";
+
+import "./telegram.css";

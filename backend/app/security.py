@@ -54,7 +54,9 @@ def authorized(token: str | None, cookie: str | None) -> bool:
 
 async def require_auth(request: Request) -> None:
     token = request.headers.get("authorization", "").removeprefix("Bearer ")
-    if not authorized(token, request.cookies.get("pulse_session")):
+    from .telegram_control import authorized_session
+
+    if not authorized(token, request.cookies.get("pulse_session")) and not await authorized_session(token):
         raise HTTPException(401, "Требуется вход")
     require_origin(request)
 

@@ -1,3 +1,4 @@
+import { telegramMode } from "./telegram";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useSettingsStore } from "./store";
@@ -7,6 +8,7 @@ export const SERVER_URL_KEY = "funpay-server-url";
 export const SERVER_TOKEN_KEY = "funpay-server-token";
 
 function resolveApi(): string {
+  if (telegramMode) return "";
   const remote = (localStorage.getItem(SERVER_URL_KEY) || "").trim();
   if (remote) {
     try { return serverAddress(remote); } catch { return remote.replace(/\/+$/, ""); }
@@ -46,7 +48,8 @@ export async function request<T>(
       response.status === 401 &&
       path !== "/auth/login" &&
       path !== "/auth/session" &&
-      path !== "/auth/connect"
+      path !== "/auth/connect" &&
+      path !== "/telegram/session"
     )
       window.dispatchEvent(new Event("session-expired"));
     // Unified contract: {code, message, details?, correlation_id}; legacy `detail` still works.
@@ -71,7 +74,9 @@ export async function request<T>(
     if (error.correlation_id) text += ` · ID ${error.correlation_id}`;
     throw new Error(text);
   }
-  return response.json() as Promise<T>;
+  const result = await response.json();
+  if (path === "/settings/telegram" && typeof result?.session_token === "string") setDesktopToken(result.session_token);
+  return result as T;
 }
 
 export class AvatarRequestError extends Error {

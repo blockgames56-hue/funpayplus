@@ -38,13 +38,19 @@ def mutation_plugins(path):
 
 async def plugin_activity(request, call_next):
     response = await call_next(request)
+    if response.status_code < 400 and request.method in {"POST", "PUT", "PATCH", "DELETE"} and request.url.path.startswith(("/api/settings/", "/api/plugins/", "/api/workspaces/", "/api/accounts/", "/api/lots/")):
+        from .events import bus
+
+        await bus.publish("notifications", {"event": "CONFIG_CHANGED"})
     ids = (
         mutation_plugins(request.url.path)
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}
         else []
     )
     token = request.headers.get("authorization", "").removeprefix("Bearer ")
-    if ids and authorized(token, request.cookies.get("pulse_session")):
+    from .telegram_control import authorized_session
+
+    if ids and (authorized(token, request.cookies.get("pulse_session")) or await authorized_session(token)):
         from .events import bus
 
         if request.url.path.startswith("/api/plugins/fulfillment/"):
